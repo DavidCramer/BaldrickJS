@@ -7,4 +7,4 @@ The shortest possible way to do a complete ajax request, …without writing a si
 
 ## Getting started & Documentation
 
-Check out <http://baldrickjs.com/> for getting the started guide and documentation.
+Check out <http://baldrickjs.com/> for the getting started guide and documentation.
