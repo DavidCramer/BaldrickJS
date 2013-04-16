@@ -114,7 +114,11 @@
                 target      : target,
                 progress    : (element.getAttribute('data-progress') ? element.getAttribute('data-progress') : null)
             }
-            if(typeof window[action.before] == 'function'){window[action.before](ev);}
+            if(typeof window[action.before] == 'function'){
+                if(window[action.before](ev) == false){
+                    return;
+                }
+            }
             if(action.groups){
                 for(i=0;i<action.groups.length;i++){
                     if(action.groups[i].getAttribute('data-group') === element.getAttribute('data-group')){
