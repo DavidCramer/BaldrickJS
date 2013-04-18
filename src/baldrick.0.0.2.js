@@ -63,8 +63,15 @@
             window.addEventListener('hashchange', baldrick.fn.hashAction, false);
         },
         queueEvent: function(e){
-            e.preventDefault();
             var element  = this;
+            if(element.getAttribute('data-before')){
+                if(typeof window[element.getAttribute('data-before')] == 'function'){
+                    if(window[element.getAttribute('data-before')](e) == false){
+                        return;
+                    }
+                }                
+            }
+            e.preventDefault();
             if(element.getAttribute('data-for')){
                 element = (document.getElementById(element.getAttribute('data-for')) ? document.getElementById(element.getAttribute('data-for')) : element);
             }
@@ -104,8 +111,7 @@
             var action = {
                 request     : (element.getAttribute('data-request') ? element.getAttribute('data-request') : null),
                 hrefaction  : (element.href ? element.href : (element.nodeName == "FORM" ? (element.getAttribute('action') ? element.getAttribute('action') : requestURL) : requestURL)),
-                callback    : (element.getAttribute('data-callback') ? element.getAttribute('data-callback') : null),
-                before      : (element.getAttribute('data-before') ? element.getAttribute('data-before') : null),
+                callback    : (element.getAttribute('data-callback') ? element.getAttribute('data-callback') : null),                
                 success     : (element.getAttribute('data-success') ? element.getAttribute('data-success') : null),
                 fail        : (element.getAttribute('data-fail') ? element.getAttribute('data-fail') : null),
                 activeClass : (element.getAttribute('data-active-class') ? element.getAttribute('data-active-class') : 'active'),
@@ -114,9 +120,11 @@
                 target      : target,
                 progress    : (element.getAttribute('data-progress') ? element.getAttribute('data-progress') : null)
             }
-            if(typeof window[action.before] == 'function'){
-                if(window[action.before](ev) == false){
-                    return;
+            if(element.getAttribute('data-start')){
+                if(typeof window[element.getAttribute('data-start')] == 'function'){
+                    if(window[element.getAttribute('data-start')](ev) == false){
+                        return;
+                    }
                 }
             }
             if(action.groups){
