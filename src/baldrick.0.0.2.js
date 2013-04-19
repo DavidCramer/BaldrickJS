@@ -1,5 +1,5 @@
 /* BaldrickJS  V0.0.2 | (C) David Cramer - 2013 | MIT License */
-    var 
+    var
     bindClass    = 'trigger',
     actionQueued,
     requestURL = null,
@@ -34,7 +34,7 @@
                             case 'data-preload':
                                 if(bindings[i].attributes[att].value == 'true'){
                                     bindings[i].removeAttribute('data-autoload');
-                                    if(bindings[i].attributes[att].name == 'data-preload'){                                        
+                                    if(bindings[i].attributes[att].name == 'data-preload'){
                                         bindings[i].removeAttribute('data-preload');
                                         _cache[bindings[i].id] = {
                                             html: null,
@@ -50,7 +50,7 @@
                                 eventType = bindings[i].attributes[att].value;
                             break;
                             default:
-                            break;                        
+                            break;
                         }
                     }
                 }
@@ -69,7 +69,7 @@
                     if(window[element.getAttribute('data-before')](e) == false){
                         return;
                     }
-                }                
+                }
             }
             e.preventDefault();
             if(element.getAttribute('data-for')){
@@ -77,10 +77,10 @@
             }
             clearTimeout(actionQueued);
             actionQueued = setTimeout(function(){
-                baldrick.fn.buildHash(element);                
+                baldrick.fn.buildHash(element);
                 baldrick.fn.doAction(element, e);
             }, element.delay);
-        },        
+        },
         doAction: function(element, ev){
             if(!element){
                 baldrick.fn.log('Invalid trigger element');
@@ -111,11 +111,11 @@
             var action = {
                 request     : (element.getAttribute('data-request') ? element.getAttribute('data-request') : null),
                 hrefaction  : (element.href ? element.href : (element.nodeName == "FORM" ? (element.getAttribute('action') ? element.getAttribute('action') : requestURL) : requestURL)),
-                callback    : (element.getAttribute('data-callback') ? element.getAttribute('data-callback') : null),                
+                callback    : (element.getAttribute('data-callback') ? element.getAttribute('data-callback') : null),
                 success     : (element.getAttribute('data-success') ? element.getAttribute('data-success') : null),
                 fail        : (element.getAttribute('data-fail') ? element.getAttribute('data-fail') : null),
                 activeClass : (element.getAttribute('data-active-class') ? element.getAttribute('data-active-class') : 'active'),
-                method      : (element.getAttribute('data-method') ? element.getAttribute('data-method') : (element.nodeName == "FORM" ? (element.getAttribute('method') ? element.getAttribute('method') : 'POST') : 'POST')),                
+                method      : (element.getAttribute('data-method') ? element.getAttribute('data-method') : (element.nodeName == "FORM" ? (element.getAttribute('method') ? element.getAttribute('method') : 'POST') : 'POST')),
                 groups      : document.getElementsByClassName(bindClass),
                 target      : target,
                 progress    : (element.getAttribute('data-progress') ? element.getAttribute('data-progress') : null)
@@ -158,7 +158,7 @@
             }
             if(!target && !action.callback && !action.progress){
                 baldrick.fn.log('Invalid target or no target defined. set either data-target or data-calback', element, ev);
-            }            
+            }
             if((action.request || action.hrefaction) && (target || typeof window[action.callback] == 'function' || action.progress)){
                 try{
                     baldrick.fn.doRequest(action, {
@@ -166,9 +166,9 @@
                         success: function(e){
                             if(typeof window[action.success] == 'function'){window[action.success](element,e);}
                             baldrick.fn.buildTriggers(bindClass);
-                        },            
+                        },
                         fail: function(e){
-                            if(typeof window[action.fail] == 'function'){window[action.fail](element,e);}                        
+                            if(typeof window[action.fail] == 'function'){window[action.fail](element,e);}
                             baldrick.fn.buildTriggers(bindClass);
                         },
                         data: data
@@ -186,8 +186,8 @@
             var element = arguments[1].element;
             var processor = (arguments[0].request ? arguments[0].request : arguments[0].hrefaction);
             var timeOut = (element.getAttribute('data-timeout') ? element.getAttribute('data-timeout') : '30000');
-            var target = arguments[0].target;            
-            var loadelement = (element.getAttribute('data-load-element') ? document.getElementById(element.getAttribute('data-load-element')) : target);            
+            var target = arguments[0].target;
+            var loadelement = (element.getAttribute('data-load-element') ? document.getElementById(element.getAttribute('data-load-element')) : target);
             var progress = arguments[0].progress;
             if(progress){
                 if(typeof window[progress] != 'function'){
@@ -227,14 +227,14 @@
                     success(_cache[element.id]);
                     _cache[element.id].html = null;
                 }
-            }            
+            }
             serialize = function(obj) {
                 var str = [];
                 for(var p in obj){
                     str.push(encodeURIComponent(p)+"="+encodeURIComponent(obj[p]));
                 }
                 return str.join("&");
-            }            
+            }
             processor = (arguments[0].method == 'GET' ? processor+'?'+serialize(arguments[1].data) : processor);
             if(window.XMLHttpRequest){
                 xmlhttp=new XMLHttpRequest();
@@ -276,15 +276,15 @@
                         }else{
                             target.innerHTML=xmlhttp.responseText;
                             delete target.xmlhttp;
-                        }                        
+                        }
                     }else{
                         if(target){
                             target.innerHTML=xmlhttp.responseText;
-                            delete target.xmlhttp;                            
+                            delete target.xmlhttp;
                         }
                         if(callback){
                             var script = document.createElement("script");
-                            script.setAttribute('type', 'text/javascript');                            
+                            script.setAttribute('type', 'text/javascript');
                             if(callbacktype == 'html' || callbacktype == 'HTML'){
                                 window[callback](xmlhttp.responseText);
                             }else{
@@ -311,11 +311,11 @@
                     if(xmlhttp.status){
                         baldrick.fn.log('HTTP Status: '+xmlhttp.status);
                     }
-                    if(target){                        
+                    if(target){
                         delete target.xmlhttp;
                     }
                     if(fail){
-                        fail(xmlhttp);                        
+                        fail(xmlhttp);
                         baldrick.fn.log('Request failed');
                     }
                     if(progress){
@@ -330,11 +330,11 @@
             }
             xmlhttp.open(arguments[0].method,processor,true);
             if(callbacktype == 'json' || callbacktype == 'JSON'){xmlhttp.setRequestHeader ("Accept", "application/json,text/javascript");}
-            if(arguments[0].method == 'POST'){        
+            if(arguments[0].method == 'POST'){
                 if(!window.FileReader){
                     xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
                 }else{
-                    if(xmlhttp.upload && progress){                        
+                    if(xmlhttp.upload && progress){
                         xmlhttp.upload.onprogress = function (event) {
                             if (event.lengthComputable) {
                                 if(typeof window[progress] == 'function'){
@@ -351,7 +351,7 @@
                 }
                 xmlhttp.open(arguments[0].method,processor,true);
                 xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-            }    
+            }
             if(arguments[1].data){
                 if(!window.FileReader){
                     arguments[1].data = serialize(arguments[1].data);
@@ -371,7 +371,7 @@
         buildHash: function(element){
             if(!element){return;}
             window.location = '#!'+element.id;
-        },        
+        },
         formObject: function(form) {
             if (!form || form.nodeName !== "FORM") {
                 return;
@@ -397,13 +397,13 @@
                     case 'radio':
                         if (form.elements[i].checked) {
                             q[form.elements[i].name] = form.elements[i].value;
-                        }                       
+                        }
                         break;
                     case 'file':
                         baldrick.fn.log('Browser does not support file uploads file API');
                         break;
                     }
-                    break;           
+                    break;
                 case 'SELECT':
                     switch (form.elements[i].type) {
                     case 'select-one':
