@@ -18,7 +18,6 @@
                 bindings[i].delay = 0;
                 var eventType = (bindings[i].nodeName == 'FORM' ? 'submit' : 'click');
                 if(!bindings[i].id){
-                    //bindings[i].id = 'tr'+Math.floor((Math.random()*110)*(Math.random()*110));
                     bindings[i].id = baldrick.prototype.genid(bindings[i])
                 }
                 for(var att in bindings[i].attributes){
@@ -437,13 +436,18 @@
         },
         log: function(){},
         genid: function(element) {
-        	var id = 'genid';
+        	var id = element.nodeName.toLowerCase();
         	for (var i=0; i<element.attributes.length; i++) {
         		name = element.attributes[i].name;
-        		if (name=='href' || name.indexOf('data-')==0) {
-        			id += '-';
+        		if (name=='href') {
+        			id += '&';
         			id += element.attributes[i].name;
-        			id += '-';
+        			id += '=';
+        			id += element.attributes[i].value;
+        		} else if (name.indexOf('data-')==0) {
+        			id += '&';
+        			id += element.attributes[i].name.slice(5);
+        			id += '=';
         			id += element.attributes[i].value;
         		}
         	}
