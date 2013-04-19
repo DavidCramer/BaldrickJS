@@ -18,7 +18,8 @@
                 bindings[i].delay = 0;
                 var eventType = (bindings[i].nodeName == 'FORM' ? 'submit' : 'click');
                 if(!bindings[i].id){
-                    bindings[i].id = 'tr'+Math.floor((Math.random()*110)*(Math.random()*110));
+                    //bindings[i].id = 'tr'+Math.floor((Math.random()*110)*(Math.random()*110));
+                    bindings[i].id = baldrick.prototype.genid(bindings[i])
                 }
                 for(var att in bindings[i].attributes){
                     if(bindings[i].attributes[att]){
@@ -363,6 +364,9 @@
         },
         hashAction: function(e){
             var lastTrigger = window.location.hash.substring(2);
+            if (lastTrigger==='') {
+            	document.location = document.location
+            }
             element = document.getElementById(lastTrigger);
             if(element){
               baldrick.fn.doAction(element, e);
@@ -431,7 +435,20 @@
             }
             return q;
         },
-        log: function(){}
+        log: function(){},
+        genid: function(element) {
+        	var id = 'genid';
+        	for (var i=0; i<element.attributes.length; i++) {
+        		name = element.attributes[i].name;
+        		if (name=='href' || name.indexOf('data-')==0) {
+        			id += '-';
+        			id += element.attributes[i].name;
+        			id += '-';
+        			id += element.attributes[i].value;
+        		}
+        	}
+        	return id;
+        }
     }
     var readyStateCheckInterval = setInterval(function() {
         if (document.readyState === "complete") {
