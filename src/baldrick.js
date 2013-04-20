@@ -1,4 +1,4 @@
-/* BaldrickJS  V0.0.2 | (C) David Cramer - 2013 | MIT License */
+/* BaldrickJS  V0.0.2 | (C) David Cramer & Rory McGuire - 2013 | MIT License */
     var
     bindClass    = 'trigger',
     actionQueued,
