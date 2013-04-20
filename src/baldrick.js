@@ -15,9 +15,6 @@
             for(i=0;i<bindings.length;i++){
                 bindings[i].delay = 0;
                 var eventType = (bindings[i].nodeName == 'FORM' ? 'submit' : 'click');
-                if(!bindings[i].id){
-                    bindings[i].id = baldrick.prototype.genid(bindings[i])
-                }
                 for(var att in bindings[i].attributes){
                     if(bindings[i].attributes[att]){
                         var value = bindings[i].attributes[att].value;
@@ -315,18 +312,41 @@
             }
         },
         hashAction: function(e){
+            if(!window.location.hash){document.location = document.location};
             var lastTrigger = window.location.hash.substring(2);
-            if (lastTrigger==='') {
-            	document.location = document.location
-            }
-            element = document.getElementById(lastTrigger);
-            if(element){
-              baldrick.fn.doAction(element, e);
+            var vars = lastTrigger.split('&');
+            if(vars[0] == '_tr'){
+                for(i=1;i<vars.length;i++){
+                    var pair = vars[i].split('=');
+                    if(pair.length == 1){
+                        var hashElement = document.createElement(pair[0]);             
+                    }else{
+                        if(pair[0] == 'href'){
+                            hashElement.setAttribute(pair[0], pair[1]);
+                        }else{
+                            hashElement.setAttribute('data-'+pair[0], pair[1]);
+                        }                        
+                    }                
+                }
+                if(hashElement){
+                    baldrick.fn.doAction(hashElement);
+                    delete hashElement;
+                    return;
+                }
             }
         },
         buildHash: function(element){
-            if(!element){return;}
-            window.location = '#!'+element.id;
+            if(!element){return;}            
+            var hash = [element.nodeName.toLowerCase()];
+            for (var i=0; i<element.attributes.length; i++) {
+                name = element.attributes[i].name;
+                if (name=='href' || name=='data-request') {
+                    var request = encodeURIComponent(element.attributes[i].name.replace('data-', ''))+"="+encodeURIComponent(element.attributes[i].value);
+                } else if (name.indexOf('data-')==0) {
+                    hash.push(encodeURIComponent(element.attributes[i].name.slice(5))+"="+encodeURIComponent(element.attributes[i].value));
+                }
+            }
+            window.location = '#!_tr&'+hash.join("&")+'&'+request;
         },
         formObject: function(form) {
             if (!form || form.nodeName !== "FORM") {
@@ -390,19 +410,7 @@
         defaults: {
 
         },
-        log: function(){},
-        genid: function(element) {
-            var id = [element.nodeName.toLowerCase()];
-        	for (var i=0; i<element.attributes.length; i++) {
-        		name = element.attributes[i].name;
-        		if (name=='href') {
-                    id.push(encodeURIComponent(element.attributes[i].name)+"="+encodeURIComponent(element.attributes[i].value));
-        		} else if (name.indexOf('data-')==0) {
-                    id.push(encodeURIComponent(element.attributes[i].name.slice(5))+"="+encodeURIComponent(element.attributes[i].value));
-        		}
-        	}
-            return id.join("&");
-        }
+        log: function(){}
     }
     var readyStateCheckInterval = setInterval(function() {
         if (document.readyState === "complete") {
