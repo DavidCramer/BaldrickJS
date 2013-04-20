@@ -19,7 +19,8 @@
         #output{min-height: 100px; border: 1px solid #BFBFBF; padding: 20px;}
         #load_status{visibility:hidden;font-weight: normal; font-size: 10px; border: 1px solid #BFBFBF; padding: 4px 8px; border-radius: 3px; margin-left: 10px;vertical-align:middle; background-color: #ffee00;}
         #load_status.loading,div.loading{visibility:visible; opacity: .3;}
-
+        .progress{display: block; height: 10px; background-color: #efefef;}
+        .bar{display: block; height: 10px; width: 0; background-color: #ff00aa;}
         </style>
     </head>
     <body>
@@ -33,7 +34,12 @@
         <form class="trigger" action="process.php" data-target="output">
             <input name="text">
             <button type="submit">Send</button>
+        </form>        
+        <form action="process.php" id="uploader" data-target="output" data-progress="progress" >
+            <input class="trigger" data-for="uploader" data-event="change" type="file" multiple="multiple" name="file[]">            
         </form>
+        <br />
+        <div class="progress"><div id="progress" class="bar"></div></div>
         <div id="output"></div>
         <script src="src/baldrick.js"></script>
 

@@ -21,7 +21,7 @@
 	orig_doAction = baldrick.prototype.doAction
 	orig_doRequest = baldrick.prototype.doRequest
 
-	baldrick.prototype.buildTriggers = function (bindclass) {
+	baldrick.prototype.bindTriggers = function (bindclass) {
 		orig_buildTriggers.call(this,bindclass)
 		baldrick.prototype.emit('init', bindclass)
 	}
