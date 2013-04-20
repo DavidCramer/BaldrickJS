@@ -336,7 +336,8 @@
             }
         },
         buildHash: function(element){
-            if(!element){return;}            
+            if(!element){return;}
+            if(element.nodeName == 'FORM'){return;}
             var hash = [element.nodeName.toLowerCase()];
             for (var i=0; i<element.attributes.length; i++) {
                 name = element.attributes[i].name;

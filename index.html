@@ -29,7 +29,10 @@
         <button class="trigger" data-request="test.html" data-target="output" data-delay="1000">Delayed by 1000ms</button>
         <a class="trigger" href="test.html" data-target="output">Link Trigger</a>
         <button class="trigger" data-customer="2634" data-request="test.html" data-target="output">Click Me</button>
-
+        <form class="trigger" action="process.php" data-target="output">
+            <input name="text">
+            <button type="submit">Send</button>
+        </form>
         <div id="output">-----</div>
         <script src="src/baldrick.js"></script>
 
