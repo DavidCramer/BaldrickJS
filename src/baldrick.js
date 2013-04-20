@@ -1,6 +1,6 @@
 /* BaldrickJS  V0.0.2 | (C) David Cramer & Rory McGuire - 2013 | MIT License */
-    var bindClass    = 'trigger', // default trigger class.
-    actionQueued, // action queued timeout. ok thats enough comments- takes to long.
+    var bindClass = 'trigger',
+    actionQueued,
     baldrick = function(bindClass){        
         return new baldrick.fn.bindTriggers(bindClass);
     };
@@ -181,7 +181,7 @@
                     }
                 }
             }
-            if(loadelement){
+             if(loadelement){
                 var loadClass = (element.getAttribute('data-load-class') ? element.getAttribute('data-load-class') : 'loading');
                 var classname = loadelement.className.replace(' '+loadClass,'');
                 loadelement.className = classname+' '+loadClass;
@@ -311,7 +311,7 @@
                 xmlhttp.send();
             }
         },
-        hashAction: function(e){
+        hashAction: function(e){            
             if(!window.location.hash){document.location = document.location};
             var lastTrigger = window.location.hash.substring(2);
             var vars = lastTrigger.split('&');
