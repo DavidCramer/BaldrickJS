@@ -1,14 +1,12 @@
 /* BaldrickJS  V0.0.2 | (C) David Cramer & Rory McGuire - 2013 | MIT License */
-    var
-    bindClass    = 'trigger',
-    actionQueued,
-    requestURL = null,
-    _cache = {},
-    baldrick = function(bindClass){
-        return new baldrick.fn.buildTriggers(bindClass);
+    var bindClass    = 'trigger', // default trigger class.
+    actionQueued, // action queued timeout. ok thats enough comments- takes to long.
+    baldrick = function(bindClass){        
+        return new baldrick.fn.bindTriggers(bindClass);
     };
     baldrick.fn = baldrick.prototype = {
-        buildTriggers: function(bindClass){
+        bindTriggers: function(bindClass){
+
             var bindings    = false;
             if(document.getElementsByClassName(bindClass)){
                 bindings    = document.getElementsByClassName(bindClass);
@@ -22,24 +20,18 @@
                 }
                 for(var att in bindings[i].attributes){
                     if(bindings[i].attributes[att]){
+                        var value = bindings[i].attributes[att].value;
                         switch (bindings[i].attributes[att].name){
                             case 'data-init':
-                                if(typeof window[bindings[i].attributes[att].value] == 'function'){window[bindings[i].attributes[att].value](bindings[i])};
+                                if(typeof window[value] == 'function'){window[value](bindings[i])};
                                 bindings[i].removeAttribute('data-init');
                             break;
                             case 'data-delay':
-                                bindings[i].delay = bindings[i].attributes[att].value;
+                                bindings[i].delay = value;
                             break;
                             case 'data-autoload':
-                            case 'data-preload':
-                                if(bindings[i].attributes[att].value == 'true'){
+                                if(value == 'true'){
                                     bindings[i].removeAttribute('data-autoload');
-                                    if(bindings[i].attributes[att].name == 'data-preload'){
-                                        bindings[i].removeAttribute('data-preload');
-                                        _cache[bindings[i].id] = {
-                                            html: null,
-                                        };
-                                    }
                                     var dly = (bindings[i].getAttribute('data-delay') ? bindings[i].getAttribute('data-delay'):0);
                                     setTimeout(function(){
                                         baldrick.fn.doAction(arguments[0]);
@@ -47,17 +39,20 @@
                                 }
                             break;
                             case 'data-event':
-                                eventType = bindings[i].attributes[att].value;
+                                eventType = value;
                             break;
                             default:
                             break;
                         }
                     }
                 }
-                if(bindings[i].addEventListener) {
-                  bindings[i].addEventListener(eventType, baldrick.fn.queueEvent, false);
-                }else if(bindings[i].attachEvent){
-                  bindings[i].attachEvent('on'+eventType, baldrick.fn.queueEvent);
+                if(!bindings[i]._isTrigger){
+                    bindings[i]._isTrigger = true;
+                    if(bindings[i].addEventListener) {
+                      bindings[i].addEventListener(eventType, baldrick.fn.queueEvent, false);
+                    }else if(bindings[i].attachEvent){
+                      bindings[i].attachEvent('on'+eventType, baldrick.fn.queueEvent);
+                    }
                 }
             }
             window.addEventListener('hashchange', baldrick.fn.hashAction, false);
@@ -74,8 +69,8 @@
             e.preventDefault();
             if(element.getAttribute('data-for')){
                 element = (document.getElementById(element.getAttribute('data-for')) ? document.getElementById(element.getAttribute('data-for')) : element);
-            }
-            clearTimeout(actionQueued);
+            }            
+            if(actionQueued){clearTimeout(actionQueued);}
             actionQueued = setTimeout(function(){
                 baldrick.fn.buildHash(element);
                 baldrick.fn.doAction(element, e);
@@ -99,18 +94,11 @@
             if(target){
                 if(target.xmlhttp){
                     target.xmlhttp.abort();
-                }else{
-                    if(_cache[element.id] !== undefined){
-                        if(_cache[element.id].xmlhttp){
-                            _cache[element.id].xmlhttp.abort();
-                            console.log(_cache[element.id].xmlhttp);
-                        }
-                    }
                 }
             }
             var action = {
                 request     : (element.getAttribute('data-request') ? element.getAttribute('data-request') : null),
-                hrefaction  : (element.href ? element.href : (element.nodeName == "FORM" ? (element.getAttribute('action') ? element.getAttribute('action') : requestURL) : requestURL)),
+                hrefaction  : (element.href ? element.href : (element.nodeName == "FORM" ? (element.getAttribute('action') ? element.getAttribute('action') : requestURL) : null)),
                 callback    : (element.getAttribute('data-callback') ? element.getAttribute('data-callback') : null),
                 success     : (element.getAttribute('data-success') ? element.getAttribute('data-success') : null),
                 fail        : (element.getAttribute('data-fail') ? element.getAttribute('data-fail') : null),
@@ -165,11 +153,11 @@
                         element: element,
                         success: function(e){
                             if(typeof window[action.success] == 'function'){window[action.success](element,e);}
-                            baldrick.fn.buildTriggers(bindClass);
+                            baldrick.fn.bindTriggers(bindClass);
                         },
                         fail: function(e){
                             if(typeof window[action.fail] == 'function'){window[action.fail](element,e);}
-                            baldrick.fn.buildTriggers(bindClass);
+                            baldrick.fn.bindTriggers(bindClass);
                         },
                         data: data
                     });
@@ -207,27 +195,6 @@
                 var callback     = arguments[0].callback;
                 var callbacktype= (element.getAttribute('data-callback-type') ? element.getAttribute('data-callback-type') : 'html');
             }
-            if(_cache[element.id] !== undefined){
-                if(_cache[element.id].html){
-                    if(target){
-                        target.innerHTML = _cache[element.id].html;
-                        loadelement.className = classname;
-                    }
-                    if(callback){
-                        var script = document.createElement("script");
-                        script.setAttribute('type', 'text/javascript');
-                        if(callbacktype == 'html' || callbacktype == 'HTML'){
-                            window[callback](_cache[element.id].html);
-                        }else{
-                            script.text = callback+'('+_cache[element.id].html+');';
-                            document.head.appendChild(script);
-                            document.head.removeChild(document.head.lastChild);
-                        }
-                    }
-                    success(_cache[element.id]);
-                    _cache[element.id].html = null;
-                }
-            }
             serialize = function(obj) {
                 var str = [];
                 for(var p in obj){
@@ -243,12 +210,8 @@
             }else{
                 return false;
             }
-            if(_cache[element.id] !== undefined){
-                _cache[element.id].xmlhttp = xmlhttp;
-            }else{
-                if(target){
-                    target.xmlhttp = xmlhttp;
-                }
+            if(target){
+                target.xmlhttp = xmlhttp;
             }
             if(timeOut > 0){
                 var requestTimeout = setTimeout(function(){
@@ -269,36 +232,26 @@
                         }
                     }
                     if(loadelement){loadelement.className = classname;}
-                    if(target && _cache[element.id] !== undefined){
-                        if(_cache[element.id].html == null){
-                            _cache[element.id].html = xmlhttp.responseText;
-                            delete _cache[element.id].xmlhttp;
+                    if(target){
+                        target.innerHTML=xmlhttp.responseText;
+                        delete target.xmlhttp;
+                    }
+                    if(callback){
+                        var script = document.createElement("script");
+                        script.setAttribute('type', 'text/javascript');
+                        if(callbacktype == 'html' || callbacktype == 'HTML'){
+                            window[callback](xmlhttp.responseText);
                         }else{
-                            target.innerHTML=xmlhttp.responseText;
-                            delete target.xmlhttp;
-                        }
-                    }else{
-                        if(target){
-                            target.innerHTML=xmlhttp.responseText;
-                            delete target.xmlhttp;
-                        }
-                        if(callback){
-                            var script = document.createElement("script");
-                            script.setAttribute('type', 'text/javascript');
-                            if(callbacktype == 'html' || callbacktype == 'HTML'){
-                                window[callback](xmlhttp.responseText);
+                            if(JSON){
+                                window[callback](JSON.parse(xmlhttp.responseText));
                             }else{
-                                if(JSON){
-                                    window[callback](JSON.parse(xmlhttp.responseText));
-                                }else{
-                                    script.text = callback+'('+xmlhttp.responseText+');';
-                                    document.head.appendChild(script);
-                                    document.head.removeChild(document.head.lastChild);
-                                }
+                                script.text = callback+'('+xmlhttp.responseText+');';
+                                document.head.appendChild(script);
+                                document.head.removeChild(document.head.lastChild);
                             }
                         }
-                        success(xmlhttp);
                     }
+                    success(xmlhttp);                    
                 }
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 307){
                     clearTimeout(requestTimeout);
@@ -434,24 +387,21 @@
             }
             return q;
         },
+        defaults: {
+
+        },
         log: function(){},
         genid: function(element) {
-        	var id = element.nodeName.toLowerCase();
+            var id = [element.nodeName.toLowerCase()];
         	for (var i=0; i<element.attributes.length; i++) {
         		name = element.attributes[i].name;
         		if (name=='href') {
-        			id += '&';
-        			id += element.attributes[i].name;
-        			id += '=';
-        			id += element.attributes[i].value;
+                    id.push(encodeURIComponent(element.attributes[i].name)+"="+encodeURIComponent(element.attributes[i].value));
         		} else if (name.indexOf('data-')==0) {
-        			id += '&';
-        			id += element.attributes[i].name.slice(5);
-        			id += '=';
-        			id += element.attributes[i].value;
+                    id.push(encodeURIComponent(element.attributes[i].name.slice(5))+"="+encodeURIComponent(element.attributes[i].value));
         		}
         	}
-        	return id;
+            return id.join("&");
         }
     }
     var readyStateCheckInterval = setInterval(function() {
