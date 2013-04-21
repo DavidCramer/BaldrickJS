@@ -16,33 +16,68 @@
         button{border: 1px solid #BFBFBF;display: inline-block;margin:0 0 10px;padding: 4px 8px;background-color: #efefef; border-radius: 4px;}
         button:hover{background-color: #e3e3e3;}
         button:active{background-color: #d2d2d2;}
-        #output{min-height: 100px; border: 1px solid #BFBFBF; padding: 20px;}
+        
         #load_status{visibility:hidden;font-weight: normal; font-size: 10px; border: 1px solid #BFBFBF; padding: 4px 8px; border-radius: 3px; margin-left: 10px;vertical-align:middle; background-color: #ffee00;}
         #load_status.loading,div.loading{visibility:visible; opacity: .3;}
-        .progress{display: block; height: 10px; background-color: #efefef;}
-        .bar{display: block; height: 10px; width: 0; background-color: #ff00aa;}
+        .progress{display: block; height: 4px; background-color: #efefef; margin: 20px 0;}
+        .bar{display: block; height: 4px; width: 0; background-color: #00aaff;-moz-transition: width .3s; -o-transition: width .3s;-webkit-transition: width .3s;transition: width .3s;}
+        .wrap{
+            background-color: #efefef;
+            width: 195px;
+            padding: 5px;
+            margin: 5px;
+            float: left;
+        }  
+        #clock{font-size:10px; color:#fff; display:block; width:280px; height:15px; padding:1px 10px;background-color: #00aaff; position: absolute; top: 0; right: 0; border-radius: 0 0 0 10px;}
+
         </style>
     </head>
     <body>
+        <span id="clock" data-target="time" data-poll="1000" data-load-class="null" class="trigger"></span>
         <h1>Baldrick.JS Examples<span id="load_status">Loading</span></h1>
         <button class="trigger" data-request="test.html" data-target="output">Basic Request + Target</button>
-        <button class="trigger" data-request="test.html" data-target="output" data-load-element="load_status">Load Element</button>
+        <button class="trigger" data-request="test.html" data-target="callback" data-load-element="load_status">Callback</button>
         <button class="trigger" data-request="test.html" data-target="output" data-delay="1000">Delayed by 1000ms</button>
         <a class="trigger" href="test.html" data-target="output">Link Trigger</a>
         <button class="trigger" data-customer="2634" data-request="nofile.html" data-target="output">to a 404</button>
-        <button class="trigger" data-customer="12334" data-request="test.html" data-autoload="true" data-target="output">Autoload</button>
-        <form class="trigger" action="process.php" data-target="output">
-            <input name="text">
+        <button class="trigger" data-customer="12334" data-request="test.html" data-target="output" data-autoload="true">Autoload</button>        
+        <button class="trigger" data-customer="12334" data-request="test2.html" data-target="output" data-target-insert="append">Append</button>
+        <button class="trigger" data-customer="12334" data-request="test.html" data-target="output" data-target-insert="prepend">Prepend</button>
+        <button class="trigger" data-customer="12334" data-request="test2.html" data-target="output" data-target-insert="replace">Replace</button>
+        <form class="trigger" action="process.php" data-target="output" data-clear="textInput" data-target-insert="prepend">
+            <input name="text" id="textInput">
             <button type="submit">Send</button>
-        </form>        
-        <form action="process.php" id="uploader" data-target="output" data-progress="progress" >
-            <input class="trigger" data-for="uploader" data-event="change" type="file" multiple="multiple" name="file[]">            
         </form>
-        <br />
-        <div class="progress"><div id="progress" class="bar"></div></div>
-        <div id="output"></div>
-        <script src="src/baldrick.js"></script>
 
+
+        <form action="process.php" id="uploader" data-target="output" data-progress="progress" data-clear="fileField" >
+            <input class="trigger" data-for="uploader" data-event="change" type="file" multiple="multiple" id="fileField" name="file[]">            
+        </form>
+        <div class="progress"><div id="progress" class="bar"></div></div>
+        
+
+
+
+
+        <div id="outWrapper">
+            <div id="output"></div>
+        </div>
+
+
+        <script src="src/baldrick.js"></script>
+        <script>
+
+            function callback(){
+                alert('I dont want to');
+            }
+            function time(){
+                document.getElementById('clock').innerHTML='Polling callback @ 1000ms :) '+Date();
+            }
+            function time2(){
+                console.log(arguments[0]);
+                arguments[0].innerHTML='Polling callback @ 1000ms :) '+Date();
+            }
+        </script>
         
     </body>
 </html>

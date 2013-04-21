@@ -26,8 +26,16 @@
                             case 'data-delay':
                                 bindings[i].delay = value;
                             break;
+                            case 'data-poll':
+                                if(value > 0){
+                                    bindings[i].removeAttribute('data-poll');
+                                    setInterval(function(){
+                                        baldrick.fn.doAction(arguments[0]);
+                                    },value, bindings[i]);
+                                }
+                            // fall through to load the first poll.
                             case 'data-autoload':
-                                if(value == 'true'){
+                                if(value){
                                     bindings[i].removeAttribute('data-autoload');
                                     var dly = (bindings[i].getAttribute('data-delay') ? bindings[i].getAttribute('data-delay'):0);
                                     setTimeout(function(){
@@ -79,14 +87,6 @@
                 return;
             }
             window.removeEventListener('hashchange', baldrick.fn.hashAction);
-            if(element.getAttribute('data-clear')){
-                var list = element.getAttribute('data-clear').split(';');
-                list.forEach(function(e){
-                    if(document.getElementById(e)){
-                        document.getElementById(e).innerHTML = '';
-                    }
-                });
-            }
             var target = (element.getAttribute('data-target') ? document.getElementById(element.getAttribute('data-target')) : null);
             if(target){
                 if(target.xmlhttp){
@@ -96,7 +96,7 @@
             var action = {
                 request     : (element.getAttribute('data-request') ? element.getAttribute('data-request') : null),
                 hrefaction  : (element.href ? element.href : (element.nodeName == "FORM" ? (element.getAttribute('action') ? element.getAttribute('action') : requestURL) : null)),
-                callback    : (element.getAttribute('data-callback') ? element.getAttribute('data-callback') : null),
+                callback    : (element.getAttribute('data-target') ? element.getAttribute('data-target') : null),
                 success     : (element.getAttribute('data-success') ? element.getAttribute('data-success') : null),
                 fail        : (element.getAttribute('data-fail') ? element.getAttribute('data-fail') : null),
                 activeClass : (element.getAttribute('data-active-class') ? element.getAttribute('data-active-class') : 'active'),
@@ -230,7 +230,24 @@
                     }
                     if(loadelement){loadelement.className = classname;}
                     if(target){
-                        target.innerHTML=xmlhttp.responseText;
+                        if(element.getAttribute('data-target-insert')){
+                            switch (element.getAttribute('data-target-insert')){
+                                case 'append':
+                                case 'after':
+                                    target.innerHTML=target.innerHTML+xmlhttp.responseText;
+                                break;    
+                                case 'prepend':
+                                case 'before':
+                                    target.innerHTML=xmlhttp.responseText+target.innerHTML;
+                                break;    
+                                default:
+                                    target.innerHTML=xmlhttp.responseText;
+                                break;    
+                            }
+                            
+                        }else{
+                            target.innerHTML=xmlhttp.responseText;
+                        }                        
                         delete target.xmlhttp;
                     }
                     if(callback){
@@ -306,12 +323,26 @@
                 if(!window.FileReader){
                     arguments[1].data = serialize(arguments[1].data);
                 }
-                xmlhttp.send(arguments[1].data);
+                xmlhttp.send(arguments[1].data);                
             }else{
                 xmlhttp.send();
             }
+            if(arguments[1].element.getAttribute('data-clear')){
+                var list = arguments[1].element.getAttribute('data-clear').split(';');
+                list.forEach(function(e){
+                    if(document.getElementById(e)){
+                        if(document.getElementById(e).nodeName == 'INPUT'){
+                            document.getElementById(e).value = null;
+                        }else{
+                            document.getElementById(e).innerHTML = null;    
+                        }
+                        
+                    }
+                });
+            }
+
         },
-        hashAction: function(e){            
+        hashAction: function(e){
             if(!window.location.hash){document.location = document.location};
             var lastTrigger = window.location.hash.substring(2);
             var vars = lastTrigger.split('&');
