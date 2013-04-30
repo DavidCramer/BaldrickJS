@@ -30,6 +30,10 @@
         }  
         #clock{font-size:10px; color:#fff; display:block; width:280px; height:15px; padding:1px 10px;background-color: #00aaff; position: absolute; top: 0; right: 0; border-radius: 0 0 0 10px;}
 
+        .uvbox{height: 100px; width: 200px;position: relative;}
+        .uv{display: block; height: 100px; width: 5px; background-color: #efefef; margin: 0 2px; float: left;}
+        .uvbar{position: absolute; bottom: 0; display: block; width:5px; background-color: #00aaff;-moz-transition: height .3s; -o-transition: height .3s;-webkit-transition: height .3s;transition: height .3s;}
+
         </style>
     </head>
     <body>
@@ -38,35 +42,64 @@
         <button class="trigger" data-request="test.html" data-target="output">Basic Request + Target</button>
         <button class="trigger" data-request="test.html" data-target="callback" data-load-element="load_status">Callback</button>
         <button class="trigger" data-request="test.html" data-target="output" data-delay="1000">Delayed by 1000ms</button>
-        <a class="trigger" href="test.html" data-target="output">Link Trigger</a>
         <button class="trigger" data-customer="2634" data-request="nofile.html" data-target="output">to a 404</button>
         <button class="trigger" data-customer="12334" data-request="test.html" data-target="output" data-autoload="true">Autoload</button>        
         <button class="trigger" data-customer="12334" data-request="test2.html" data-target="output" data-target-insert="append">Append</button>
         <button class="trigger" data-customer="12334" data-request="test.html" data-target="output" data-target-insert="prepend">Prepend</button>
         <button class="trigger" data-customer="12334" data-request="test2.html" data-target="output" data-target-insert="replace">Replace</button>
-        <form class="trigger" action="process.php" data-target="output" data-clear="textInput" data-target-insert="prepend">
-            <input name="text" id="textInput">
-            <button type="submit">Send</button>
-        </form>
 
 
-        <form action="process.php" id="uploader" data-target="output" data-progress="progress" data-clear="fileField" >
+        <form action="test3.html" id="uploader" data-target="output" data-progress="progress" data-clear="fileField" >
             <input class="trigger" data-for="uploader" data-event="change" type="file" multiple="multiple" id="fileField" name="file[]">            
         </form>
         <div class="progress"><div id="progress" class="bar"></div></div>
-        
-
-
 
 
         <div id="outWrapper">
             <div id="output"></div>
         </div>
 
+        <div>
+            <h4>Testing muti polling</h4>
 
+
+        <div class="uvbox">
+            <?php 
+            for($i = 1; $i<= 10; $i++){
+            ?>
+            <div class="uv trigger" data-poll="100" data-irequest="process.php" data-polltest="true" data-target="pollFunc" data-out="poll<?php echo $i; ?>"><div class="uvbar" id="poll<?php echo $i; ?>"></div></div>
+            <?php } ?>
+        </div>
+            
+            
+
+        </div>
         <script src="src/baldrick.js"></script>
         <script>
+            function pollFunc(){
+                var target = arguments[0].getAttribute('data-out');
+                //var number = parseFloat(document.getElementById(target).style.width);
+                var number = Math.ceil(Math.random()*99);
 
+                if(number){
+                    if(number >=101){
+                        number = 0;
+                    }else{
+                        number++;
+                    }
+                }else{
+                    number = 1;
+                }
+                document.getElementById(target).style.height = number+'%';
+            }
+            function setList(){
+                var el = arguments[0].target;
+                var list = document.getElementById(arguments[0].target.getAttribute('data-target'));
+                list.style.position = 'absolute';                
+                list.style.width = 'auto';
+                list.style.minWidth = el.clientWidth+'px';
+                console.log(el.style.width);
+            }
             function callback(){
                 alert('I dont want to');
             }

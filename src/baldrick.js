@@ -96,7 +96,7 @@
             var action = {
                 request     : (element.getAttribute('data-request') ? element.getAttribute('data-request') : null),
                 hrefaction  : (element.href ? element.href : (element.nodeName == "FORM" ? (element.getAttribute('action') ? element.getAttribute('action') : requestURL) : null)),
-                callback    : (element.getAttribute('data-target') ? element.getAttribute('data-target') : null),
+                callback    : (element.getAttribute('data-callback') ? element.getAttribute('data-callback') : (element.getAttribute('data-target') ? element.getAttribute('data-target') : null)),
                 success     : (element.getAttribute('data-success') ? element.getAttribute('data-success') : null),
                 fail        : (element.getAttribute('data-fail') ? element.getAttribute('data-fail') : null),
                 activeClass : (element.getAttribute('data-active-class') ? element.getAttribute('data-active-class') : 'active'),
@@ -254,10 +254,10 @@
                         var script = document.createElement("script");
                         script.setAttribute('type', 'text/javascript');
                         if(callbacktype == 'html' || callbacktype == 'HTML'){
-                            window[callback](xmlhttp.responseText);
+                            window[callback](xmlhttp.responseText, element);
                         }else{
                             if(JSON){
-                                window[callback](JSON.parse(xmlhttp.responseText));
+                                window[callback](JSON.parse(xmlhttp.responseText), element);
                             }else{
                                 script.text = callback+'('+xmlhttp.responseText+');';
                                 document.head.appendChild(script);
