@@ -163,7 +163,7 @@
                 }
             }else{
                 baldrick.fn.log('No request URL defined');
-                if(typeof window[action.callback] == 'function'){window[action.callback](element, ev);}
+                if(typeof window[action.callback] == 'function'){window[action.callback](element, ev);baldrick.fn.bindTriggers(bindClass);}
             }
         },
         doRequest: function(){
