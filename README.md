@@ -7,7 +7,7 @@ The shortest possible way to do a complete ajax request, …without writing a si
 
 Example of a complete ajax request.
 ```html
-<button class="target" data-request="request-url" data-target="element-to-put-result" />
+<button class="trigger" data-request="request-url" data-target="element-to-put-result" />
 ```
 ## Getting started & Documentation
 
