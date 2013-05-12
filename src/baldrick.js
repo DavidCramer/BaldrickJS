@@ -37,6 +37,7 @@
                             case 'data-autoload':
                                 if(value){
                                     bindings[i].removeAttribute('data-autoload');
+                                    if(value == 'clean'){bindings[i].setAttribute('data-once', true);}
                                     var dly = (bindings[i].getAttribute('data-delay') ? bindings[i].getAttribute('data-delay'):0);
                                     setTimeout(function(){
                                         baldrick.fn.doAction(arguments[0]);
@@ -154,6 +155,9 @@
                         element: element,
                         success: function(e){
                             if(typeof window[action.success] == 'function'){window[action.success](element,e);}
+                            if(element.getAttribute('data-once')){
+                                element.parentNode.removeChild(element);
+                            }
                             baldrick.fn.bindTriggers(bindClass);
                         },
                         fail: function(e){
