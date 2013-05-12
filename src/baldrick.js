@@ -92,6 +92,10 @@
                 if(target.xmlhttp){
                     target.xmlhttp.abort();
                 }
+            }else{            
+                if(document.getElementsByClassName(element.getAttribute('data-target').substr(1)).length > 0){    
+                    var target = document.getElementsByClassName(element.getAttribute('data-target').substr(1));
+                }
             }
             var action = {
                 request     : (element.getAttribute('data-request') ? element.getAttribute('data-request') : null),
@@ -166,7 +170,7 @@
                 if(typeof window[action.callback] == 'function'){window[action.callback](element, ev);baldrick.fn.bindTriggers(bindClass);}
             }
         },
-        doRequest: function(){
+        doRequest: function(){            
             var xmlhttp;
             var element = arguments[1].element;
             var processor = (arguments[0].request ? arguments[0].request : arguments[0].hrefaction);
@@ -181,10 +185,19 @@
                     }
                 }
             }
-             if(loadelement){
+            if(loadelement){                
                 var loadClass = (element.getAttribute('data-load-class') ? element.getAttribute('data-load-class') : 'loading');
-                var classname = loadelement.className.replace(' '+loadClass,'');
-                loadelement.className = classname+' '+loadClass;
+                if(loadelement.length){
+                    var classname = [];
+                    for(i=0;i<loadelement.length;i++){
+                        classname.push(loadelement[i].className.replace(' '+loadClass,''));
+                        loadelement[i].className = classname[i]+' '+loadClass;                        
+                    };
+                }else{
+                    var classname = loadelement.className.replace(' '+loadClass,'');
+                    loadelement.className = classname+' '+loadClass;
+                }
+                
             }
             var success = arguments[1].success;
             var fail = arguments[1].fail;
@@ -207,8 +220,14 @@
             }else{
                 return false;
             }
-            if(target){
-                target.xmlhttp = xmlhttp;
+            if(target){                
+                if(target.length){
+                    for(i=0;i<target.length;i++){
+                        target[i].xmlhttp = xmlhttp;
+                    };
+                }else{
+                    target.xmlhttp = xmlhttp;
+                }
             }
             if(timeOut > 0){
                 var requestTimeout = setTimeout(function(){
@@ -228,27 +247,61 @@
                             progress.style.width = '100%';
                         }
                     }
-                    if(loadelement){loadelement.className = classname;}
+                    if(loadelement){
+                        if(loadelement.length){
+                            for(i=0;i<loadelement.length;i++){
+                                loadelement[i].className = classname[i];
+                            };
+                        }else{                        
+                            loadelement.className = classname;
+                        }
+                    }
                     if(target){
                         if(element.getAttribute('data-target-insert')){
                             switch (element.getAttribute('data-target-insert')){
                                 case 'append':
                                 case 'after':
-                                    target.innerHTML=target.innerHTML+xmlhttp.responseText;
+                                    if(target.length){
+                                        for(i=0;i<loadelement.length;i++){
+                                            target[i].innerHTML=target[i].innerHTML+xmlhttp.responseText;
+                                        }
+                                    }else{
+                                        target.innerHTML=target.innerHTML+xmlhttp.responseText;
+                                    }
                                 break;    
                                 case 'prepend':
                                 case 'before':
-                                    target.innerHTML=xmlhttp.responseText+target.innerHTML;
+                                    if(target.length){
+                                        for(i=0;i<loadelement.length;i++){
+                                            target[i].innerHTML=xmlhttp.responseText+target[i].innerHTML;
+                                        }
+                                    }else{
+                                        target.innerHTML=xmlhttp.responseText+target.innerHTML;
+                                    }
                                 break;    
                                 default:
-                                    target.innerHTML=xmlhttp.responseText;
+                                    if(target.length){
+                                        for(i=0;i<loadelement.length;i++){
+                                            target[i].innerHTML=xmlhttp.responseText;
+                                        }
+                                    }else{
+                                        target.innerHTML=xmlhttp.responseText;
+                                    }
                                 break;    
                             }
                             
                         }else{
-                            target.innerHTML=xmlhttp.responseText;
+                            if(target.length){
+                                for(i=0;i<loadelement.length;i++){
+                                    target[i].innerHTML=xmlhttp.responseText;
+                                    delete target[i].xmlhttp;
+                                }
+                            }else{
+                                target.innerHTML=xmlhttp.responseText;
+                                delete target.xmlhttp;
+                            }
                         }                        
-                        delete target.xmlhttp;
+                        
                     }
                     if(callback){
                         var script = document.createElement("script");
