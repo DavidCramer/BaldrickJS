@@ -112,7 +112,7 @@
                 success     : (element.getAttribute('data-success') ? element.getAttribute('data-success') : null),
                 fail        : (element.getAttribute('data-fail') ? element.getAttribute('data-fail') : null),
                 activeClass : (element.getAttribute('data-active-class') ? element.getAttribute('data-active-class') : 'active'),
-                method      : (element.getAttribute('data-method') ? element.getAttribute('data-method') : (element.nodeName == "FORM" ? (element.getAttribute('method') ? element.getAttribute('method') : 'POST') : 'POST')),
+                method      : (element.getAttribute('data-method') ? element.getAttribute('data-method').toUpperCase() : (element.nodeName == "FORM" ? (element.getAttribute('method').toUpperCase() ? element.getAttribute('method').toUpperCase() : 'GET') : 'GET')),
                 groups      : document.getElementsByClassName(bindClass),
                 target      : target,
                 progress    : (element.getAttribute('data-progress') ? element.getAttribute('data-progress') : null)
