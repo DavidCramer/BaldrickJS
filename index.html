@@ -48,7 +48,8 @@
         <button class="trigger" data-customer="12334" data-request="test2.html" data-target="output" data-target-insert="append">Append</button>
         <button class="trigger" data-customer="12334" data-request="test.html" data-target="output" data-target-insert="prepend">Prepend</button>
         <button class="trigger" data-customer="12334" data-request="test2.html" data-target="output" data-target-insert="replace">Replace</button>
-        <button class="trigger" data-customer="12334" data-request="test2.html" data-target=".output" data-target-insert="replace">Class Target</button>
+        <button class="trigger" data-customer="12334" data-request="test.html" data-target=".output" data-target-insert="replace">Class Target</button>
+        <button class="trigger" data-customer="12334" data-request="test.html" data-clear="output">Clear</button>
 
 
         <form action="test3.html" id="uploader" data-target="output" data-progress="progress" data-clear="fileField" >
@@ -81,7 +82,7 @@
             
 
         </div>
-        <script src="src/baldrick.js"></script>
+        <script src="src/baldrick.dev.js"></script>
         <script>
             function pollFunc(){
                 var target = arguments[0].getAttribute('data-out');
