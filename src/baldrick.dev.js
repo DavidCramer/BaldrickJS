@@ -141,6 +141,7 @@
                 element.className = element.className+' '+action.activeClass;
             }
             var value       = (element.value ? element.value : false);
+
             if(window.FileReader && action.method == 'POST'){
                 var data    = (element.nodeName == "FORM" ? new FormData(element) : new FormData());
                 if(value != false){data.append('value', value);}
@@ -158,6 +159,14 @@
                                 data[element.attributes[att].name.substr(5)] = element.attributes[att].value;
                             }
                         }
+                    }
+                }
+            }
+            if(ev){
+                if(!ev.target){
+                    for(var f in ev){
+                        console.log(data);
+                        data.append(f,ev[f]);
                     }
                 }
             }
