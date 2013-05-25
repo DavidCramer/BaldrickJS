@@ -6,14 +6,13 @@
     };
     baldrick.fn = baldrick.prototype = {
         bindTriggers: function(bindClass){
-            var bindings    = false;
+            var bindings    = false, autoloads   = [];
             if(document.getElementsByClassName(bindClass)){
                 bindings    = document.getElementsByClassName(bindClass);
-            }
-            var autoloads   = [];
+            }            
             for(i=0;i<bindings.length;i++){
                 bindings[i].delay = 0;
-                var eventType = (bindings[i].nodeName == 'FORM' ? 'submit' : 'click');
+                var eventType = (bindings[i].nodeName == 'FORM' ? 'submit' : 'click'), hashChange = true;;
                 for(var att in bindings[i].attributes){
                     if(bindings[i].attributes[att]){
                         var value = bindings[i].attributes[att].value;
@@ -46,6 +45,11 @@
                             case 'data-event':
                                 eventType = value;
                             break;
+                            case 'data-history':
+                                if(value == 'off'){
+                                    hashChange = false;
+                                }
+                            break
                             default:
                             break;
                         }
@@ -60,7 +64,9 @@
                     }
                 }
             }
-            window.addEventListener('hashchange', baldrick.fn.hashAction, false);
+            if(hashChange){
+                window.addEventListener('hashchange', baldrick.fn.hashAction, false);
+            }
         },
         queueEvent: function(e){
             var element  = this;
@@ -195,6 +201,7 @@
             var timeOut = (element.getAttribute('data-timeout') ? element.getAttribute('data-timeout') : '30000');
             var target = arguments[0].target;
             var loadelement = (element.getAttribute('data-load-element') ? document.getElementById(element.getAttribute('data-load-element')) : target);
+            var loadtext = (element.getAttribute('data-load-text') ? element.getAttribute('data-load-text') : null);
             var progress = arguments[0].progress;
             if(progress){
                 if(typeof window[progress] != 'function'){
@@ -203,7 +210,12 @@
                     }
                 }
             }
-            if(loadelement){                
+            if(loadelement){
+                if(loadtext){
+                    var prevLoadText = '';
+                    if(loadelement.innerHTML){prevLoadText = loadelement.innerHTML;}
+                    loadelement.innerHTML = loadtext;
+                }
                 var loadClass = (element.getAttribute('data-load-class') ? element.getAttribute('data-load-class') : 'loading');
                 if(loadelement.length){
                     var classname = [];
@@ -215,7 +227,6 @@
                     var classname = loadelement.className.replace(' '+loadClass,'');
                     loadelement.className = classname+' '+loadClass;
                 }
-                
             }
             var success = arguments[1].success;
             var fail = arguments[1].fail;
@@ -345,6 +356,7 @@
                 }
                 if (xmlhttp.readyState == 4 && xmlhttp.status != 200 && xmlhttp.status != 307){
                     if(loadelement){loadelement.className = classname;}
+                    loadelement.innerHTML=prevLoadText;
                     clearTimeout(requestTimeout);
                     if(xmlhttp.status){
                         baldrick.fn.log('HTTP Status: '+xmlhttp.status);
@@ -439,7 +451,8 @@
         },
         buildHash: function(element){
             if(!element){return;}
-            if(element.nodeName == 'FORM'){return;}
+            if(element.getAttribute('data-history')){if(element.getAttribute('data-history') == 'off'){return;}}
+            if(element.nodeName == 'FORM' || element.nodeName == 'INPUT'){return;}
             var hash = [element.nodeName.toLowerCase()];
             for (var i=0; i<element.attributes.length; i++) {
                 name = element.attributes[i].name;
@@ -463,15 +476,6 @@
                 switch (form.elements[i].nodeName) {
                 case 'INPUT':
                     switch (form.elements[i].type) {
-                    case 'text':
-                    case 'hidden':
-                    case 'password':
-                    case 'button':
-                    case 'reset':
-                    case 'submit':
-                    case 'TEXTAREA':
-                        q[form.elements[i].name] = form.elements[i].value;
-                        break;
                     case 'checkbox':
                     case 'radio':
                         if (form.elements[i].checked) {
@@ -497,15 +501,10 @@
                         break;
                     }
                     break;
-                case 'BUTTON':
-                    switch (form.elements[i].type) {
-                    case 'reset':
-                    case 'submit':
-                    case 'button':
-                        q[form.elements[i].name] = form.elements[i].value;
-                        break;
-                    }
-                    break;
+                default:
+                    q[form.elements[i].name] = form.elements[i].value;
+                break;
+
                 }
             }
             return q;
