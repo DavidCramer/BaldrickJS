@@ -1,5 +1,6 @@
 /* BaldrickJS  V0.0.2 | (C) David Cramer & Rory McGuire - 2013 | MIT License */
     var bindClass = 'trigger',
+    triggers,
     actionQueued,
     baldrick = function(bindClass){        
         return new baldrick.fn.bindTriggers(bindClass);
@@ -88,6 +89,13 @@
             }, element.delay);
         },
         doAction: function(element, ev){
+            if(typeof element === 'string'){
+                if(document.getElementById(element)){
+                    element = document.getElementById(element);
+                }else{
+                    return;
+                }
+            }
             if(!element){
                 baldrick.fn.log('Invalid trigger element');
                 return;
@@ -514,9 +522,10 @@
         },
         log: function(){}
     }
+    baldrick.fn.bindTriggers.prototype = baldrick.fn;
     var readyStateCheckInterval = setInterval(function() {
         if (document.readyState === "complete") {
-            baldrick(bindClass);
+            triggers = baldrick(bindClass);
             clearInterval(readyStateCheckInterval);
         }
     }, 10);
