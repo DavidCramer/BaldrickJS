@@ -1,11 +1,11 @@
-/* BaldrickJS  V0.0.2 | (C) David Cramer & Rory McGuire - 2013 | MIT License */
+/* bldrkJS  V0.0.2 | (C) David Cramer & Rory McGuire - 2013 | MIT License */
     var bindClass = 'trigger',
     triggers,
     actionQueued,
-    baldrick = function(bindClass){        
-        return new baldrick.fn.bindTriggers(bindClass);
+    bldrk = function(bindClass){        
+        return new bldrk.fn.bindTriggers(bindClass);
     };
-    baldrick.fn = baldrick.prototype = {
+    bldrk.fn = bldrk.prototype = {
         bindTriggers: function(bindClass){
             var bindings    = false, autoloads   = [];
             if(document.getElementsByClassName(bindClass)){
@@ -29,7 +29,7 @@
                                 if(value > 0){
                                     bindings[i].removeAttribute('data-poll');
                                     setInterval(function(){
-                                        baldrick.fn.doAction(arguments[0]);
+                                        bldrk.fn.doAction(arguments[0]);
                                     },value, bindings[i]);
                                 }
                             // fall through to load the first poll.
@@ -39,7 +39,7 @@
                                     if(value == 'clean'){bindings[i].setAttribute('data-once', true);}
                                     var dly = (bindings[i].getAttribute('data-delay') ? bindings[i].getAttribute('data-delay'):0);
                                     setTimeout(function(){
-                                        baldrick.fn.doAction(arguments[0]);
+                                        bldrk.fn.doAction(arguments[0]);
                                     },dly, bindings[i]);
                                 }
                             break;
@@ -59,14 +59,14 @@
                 if(!bindings[i]._isTrigger){
                     bindings[i]._isTrigger = true;
                     if(bindings[i].addEventListener) {
-                      bindings[i].addEventListener(eventType, baldrick.fn.queueEvent, false);
+                      bindings[i].addEventListener(eventType, bldrk.fn.queueEvent, false);
                     }else if(bindings[i].attachEvent){
-                      bindings[i].attachEvent('on'+eventType, baldrick.fn.queueEvent);
+                      bindings[i].attachEvent('on'+eventType, bldrk.fn.queueEvent);
                     }
                 }
             }
             if(hashChange){
-                window.addEventListener('hashchange', baldrick.fn.hashAction, false);
+                window.addEventListener('hashchange', bldrk.fn.hashAction, false);
             }
         },
         queueEvent: function(e){
@@ -84,8 +84,8 @@
             }            
             if(actionQueued){clearTimeout(actionQueued);}
             actionQueued = setTimeout(function(){
-                baldrick.fn.buildHash(element);
-                baldrick.fn.doAction(element, e);
+                bldrk.fn.buildHash(element);
+                bldrk.fn.doAction(element, e);
             }, element.delay);
         },
         doAction: function(element, ev){
@@ -97,10 +97,10 @@
                 }
             }
             if(!element){
-                baldrick.fn.log('Invalid trigger element');
+                bldrk.fn.log('Invalid trigger element');
                 return;
             }
-            window.removeEventListener('hashchange', baldrick.fn.hashAction);
+            window.removeEventListener('hashchange', bldrk.fn.hashAction);
             var target = (element.getAttribute('data-target') ? document.getElementById(element.getAttribute('data-target')) : null);
             if(target){
                 if(target.xmlhttp){
@@ -142,11 +142,12 @@
             }
             var value       = (element.value ? element.value : false);
 
-            if(window.FileReader && action.method == 'POST'){
+            if(window.FileReader && action.method == 'POST' && FormData){
                 var data    = (element.nodeName == "FORM" ? new FormData(element) : new FormData());
                 if(value != false){data.append('value', value);}
             }else{
-                var data    = (element.nodeName == "FORM" ? element : new FormData());
+                //var data    = (element.nodeName == "FORM" ? element : new FormData());
+                var data    = {}
                 if(value != false){data['value'] = value};
             }
             for(var att in element.attributes){
@@ -162,40 +163,32 @@
                     }
                 }
             }
-            if(ev){
-                if(!ev.target){
-                    for(var f in ev){
-                        console.log(data);
-                        data.append(f,ev[f]);
-                    }
-                }
-            }
             if(!target && !action.callback && !action.progress){
-                baldrick.fn.log('Invalid target or no target defined. set either data-target or data-calback', element, ev);
+                bldrk.fn.log('Invalid target or no target defined. set either data-target or data-calback', element, ev);
             }
             if((action.request || action.hrefaction) && (target || typeof window[action.callback] == 'function' || action.progress)){
                 try{
-                    baldrick.fn.doRequest(action, {
+                    bldrk.fn.doRequest(action, {
                         element: element,
                         success: function(e){
                             if(typeof window[action.success] == 'function'){window[action.success](element,e);}
                             if(element.getAttribute('data-once')){
                                 element.parentNode.removeChild(element);
                             }
-                            baldrick.fn.bindTriggers(bindClass);
+                            bldrk.fn.bindTriggers(bindClass);
                         },
                         fail: function(e){
                             if(typeof window[action.fail] == 'function'){window[action.fail](element,e);}
-                            baldrick.fn.bindTriggers(bindClass);
+                            bldrk.fn.bindTriggers(bindClass);
                         },
                         data: data
                     });
                 }catch(err){
-                    baldrick.fn.log(err);
+                    bldrk.fn.log(err);
                 }
             }else{
-                baldrick.fn.log('No request URL defined');
-                if(typeof window[action.callback] == 'function'){window[action.callback](element, ev);baldrick.fn.bindTriggers(bindClass);}
+                bldrk.fn.log('No request URL defined');
+                if(typeof window[action.callback] == 'function'){window[action.callback](element, ev);bldrk.fn.bindTriggers(bindClass);}
                 if(element.getAttribute('data-clear')){
                     var list = element.getAttribute('data-clear').split(';');
                     list.forEach(function(e){
@@ -279,11 +272,17 @@
                 var requestTimeout = setTimeout(function(){
                     if(timeOut > 0){
                         xmlhttp.abort();
-                        baldrick.fn.log('Timeout ('+timeOut+'ms)');
+                        bldrk.fn.log('Timeout ('+timeOut+'ms)');
                     }
                 }, timeOut);
             }
             xmlhttp.onreadystatechange=function(){
+                
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 0){
+                    if(loadelement){
+                        loadelement.innerHTML=prevLoadText;
+                    }
+                }
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
                     clearTimeout(requestTimeout);
                     if(progress){
@@ -367,23 +366,28 @@
                     success(xmlhttp);                    
                 }
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 307){
+                    if(loadelement){
+                        loadelement.innerHTML=prevLoadText;
+                    }
                     clearTimeout(requestTimeout);
-                    baldrick.fn.log('HTTP Status: 307');
+                    bldrk.fn.log('HTTP Status: 307');
                     document.location = './';
                 }
                 if (xmlhttp.readyState == 4 && xmlhttp.status != 200 && xmlhttp.status != 307){
-                    if(loadelement){loadelement.className = classname;}
-                    loadelement.innerHTML=prevLoadText;
+                    if(loadelement){
+                        loadelement.innerHTML=prevLoadText;
+                        loadelement.className = classname;
+                    }
                     clearTimeout(requestTimeout);
                     if(xmlhttp.status){
-                        baldrick.fn.log('HTTP Status: '+xmlhttp.status);
+                        bldrk.fn.log('HTTP Status: '+xmlhttp.status);
                     }
                     if(target){
                         delete target.xmlhttp;
                     }
                     if(fail){
                         fail(xmlhttp);
-                        baldrick.fn.log('Request failed');
+                        bldrk.fn.log('Request failed');
                     }
                     if(progress){
                         if(typeof window[progress] == 'function'){
@@ -460,7 +464,7 @@
                     }                
                 }
                 if(hashElement){
-                    baldrick.fn.doAction(hashElement);
+                    bldrk.fn.doAction(hashElement);
                     delete hashElement;
                     return;
                 }
@@ -500,7 +504,7 @@
                         }
                         break;
                     case 'file':
-                        baldrick.fn.log('Browser does not support file uploads file API');
+                        bldrk.fn.log('Browser does not support file uploads file API');
                         break;
                     }
                     break;
@@ -531,10 +535,10 @@
         },
         log: function(){}
     }
-    baldrick.fn.bindTriggers.prototype = baldrick.fn;
+    bldrk.fn.bindTriggers.prototype = bldrk.fn;
     var readyStateCheckInterval = setInterval(function() {
         if (document.readyState === "complete") {
-            triggers = baldrick(bindClass);
+            baldrick = bldrk(bindClass);
             clearInterval(readyStateCheckInterval);
         }
     }, 10);
