@@ -13,7 +13,7 @@
             }            
             for(i=0;i<bindings.length;i++){
                 bindings[i].delay = 0;
-                var eventType = (bindings[i].nodeName == 'FORM' ? 'submit' : 'click'), hashChange = true;;
+                var eventType = (bindings[i].nodeName == 'FORM' ? 'submit' : 'click'), hashChange = true;
                 for(var att in bindings[i].attributes){
                     if(bindings[i].attributes[att]){
                         var value = bindings[i].attributes[att].value;
@@ -81,7 +81,7 @@
             e.preventDefault();
             if(element.getAttribute('data-for')){
                 element = (document.getElementById(element.getAttribute('data-for')) ? document.getElementById(element.getAttribute('data-for')) : element);
-            }            
+            }
             if(actionQueued){clearTimeout(actionQueued);}
             actionQueued = setTimeout(function(){
                 bldrk.fn.buildHash(element);
@@ -427,7 +427,7 @@
                 if(!window.FileReader){
                     arguments[1].data = serialize(arguments[1].data);
                 }
-                xmlhttp.send(arguments[1].data);                
+                xmlhttp.send(arguments[1].data);
             }else{
                 xmlhttp.send();
             }
