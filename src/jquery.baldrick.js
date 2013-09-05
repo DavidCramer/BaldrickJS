@@ -2,15 +2,29 @@
 (function($){
     $.fn.baldrick = function(){
     	this.removeClass('trigger').addClass('_tisBound');
-    	var defaults = arguments[0];
+    	var defaults = {};
+    	if(arguments.length){
+    		defaults = arguments[0];
+    	}
+    	for(var helper in baldrickHelper){
+    		if(typeof baldrickHelper[helper] === 'function'){
+    			baldrickHelper[helper](this);
+    		}
+    	}
         return this.each(function(){
 			var tr = $(this), ev = (tr.data('event') ? tr.data('event') : 'click');
 			tr.on(ev, function(e){
-				if(tr.data('for')){return $(tr.data('for')).trigger(ev);}
+				if(tr.data('for')){
+					var fort 		= $(tr.data('for')),
+						datamerge 	= $.extend({}, tr.data());
+						delete datamerge.for;
+					fort.data(datamerge);
+					return fort.trigger((fort.data('event') ? fort.data('event') : ev));
+				}
 				if((tr.data('before') ? (typeof window[tr.data('before')] === 'function' ? window[tr.data('before')](this, e) : true) : true) === false){return}
-				var cb = (tr.data('callback') ? ((typeof window[tr.data('callback')] === 'function') ? window[tr.data('callback')] : false) : false),
+				var cb = (tr.data('callback') ? ((typeof window[tr.data('callback')] === 'function') ? window[tr.data('callback')] : false) : (defaults.callback ? defaults.callback : false)),
 					re = (tr.data('request') ? tr.data('request') : (defaults.request ? defaults.request : cb)),
-					ta = (tr.data('target') ? (($(tr.data('target')).length < 1) ? $('<span>') : $(tr.data('target'))) : tr),
+					ta = (tr.data('target') ? (($(tr.data('target')).length < 1) ? $('<span>') : $(tr.data('target'))) : (cb ? cb : tr)),
 					ti = (tr.data('targetInsert') ? tr.data('targetInsert') : 'html'),
 					lc = (tr.data('loadClass') ? tr.data('loadClass') : 'loading'),
 					ac = (tr.data('activeClass') ? tr.data('activeClass') : 'active'),
@@ -25,7 +39,8 @@
 				}
 				e.preventDefault();
 				(tr.data('group') ? $('._tisBound[data-group="'+tr.data('group')+'"]').removeClass(ac) : $('._tisBound:not([data-group])').removeClass(ac));
-				ae.addClass(ac);le.addClass(lc);
+				ae.addClass(ac);
+				if(typeof le !== 'function'){ le.addClass(lc);}
 				var sd = tr.serializeArray(), data;
 				if(sd.length){
 					var arr = [];
@@ -37,14 +52,16 @@
 					data = $.param(tr.data());
 				}
 				if(tr.data('template') && typeof Handlebars === 'object'){
-					var source = $(tr.data('template')).html();var template = Handlebars.compile(source);$.getJSON(re, data, function(dt,st,xhr){ta.html(template(dt));$(this).parent().find('.trigger').baldrick();le.removeClass(lc);return cb(dt,st,xhr);});
+					var source = $(tr.data('template')).html();var template = Handlebars.compile(source);$.getJSON(re, data, function(dt,st,xhr){ta.html(template(dt));ta.parent().find('.trigger').baldrick();le.removeClass(lc);return cb(dt,{trigger: tr[0], target: ta[0]},st,xhr);});
 				}else{
 					//ta.load(re, data, function(tx,st,xhr){$(this).parent().find('.trigger').baldrick();le.removeClass(lc);return cb(tx,st,xhr);});
 					$.post(re, data, function(tx,st,xhr){
-						$(ta)[ti](tx);
-						$(ta).parent().find('.trigger').baldrick();
-						le.removeClass(lc);
-						return cb(tx,st,xhr);
+						if(typeof ta !== 'function'){
+							$(ta)[ti](tx);
+							$(ta).parent().find('.trigger').baldrick();
+							le.removeClass(lc);
+						}
+						return cb(tx,{trigger: tr[0], target: ta[0]}, st,xhr);
 					});
 				}
 			});
