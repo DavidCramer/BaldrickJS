@@ -22,14 +22,15 @@
 					return fort.trigger((fort.data('event') ? fort.data('event') : ev));
 				}
 				if((tr.data('before') ? (typeof window[tr.data('before')] === 'function' ? window[tr.data('before')](this, e) : true) : true) === false){return}
-				var cb = (tr.data('callback') ? ((typeof window[tr.data('callback')] === 'function') ? window[tr.data('callback')] : false) : (defaults.callback ? defaults.callback : false)),
+				var cb = (tr.data('callback') ? ((typeof window[tr.data('callback')] === 'function') ? window[tr.data('callback')] : tr.data('callback')) : (defaults.callback ? defaults.callback : false)),
 					re = (tr.data('request') ? tr.data('request') : (defaults.request ? defaults.request : cb)),
 					ta = (tr.data('target') ? (($(tr.data('target')).length < 1) ? $('<span>') : $(tr.data('target'))) : (cb ? cb : tr)),
 					ti = (tr.data('targetInsert') ? tr.data('targetInsert') : 'html'),
 					lc = (tr.data('loadClass') ? tr.data('loadClass') : 'loading'),
 					ac = (tr.data('activeClass') ? tr.data('activeClass') : 'active'),
 					ae = (tr.data('activeElement') ? $(tr.data('activeElement')) : tr),
-					le = (tr.data('loadElement') ? $(tr.data('loadElement')) : ta);
+					le = (tr.data('loadElement') ? $(tr.data('loadElement')) : ta),
+					ch = (tr.data('cache') ? $(tr.data('cache')) : false);
 				switch (typeof re){
 					case 'function' : e.preventDefault(); re(this, e); return;
 					case 'boolean' : return re;
@@ -40,7 +41,7 @@
 				e.preventDefault();
 				(tr.data('group') ? $('._tisBound[data-group="'+tr.data('group')+'"]').removeClass(ac) : $('._tisBound:not([data-group])').removeClass(ac));
 				ae.addClass(ac);
-				if(typeof le !== 'function'){ le.addClass(lc);}
+				if(typeof le !== 'function' && typeof le !== 'string'){ le.addClass(lc);}
 				var sd = tr.serializeArray(), data;
 				if(sd.length){
 					var arr = [];
@@ -51,18 +52,32 @@
 				}else{
 					data = $.param(tr.data());
 				}
-				if(tr.data('template') && typeof Handlebars === 'object'){
-					var source = $(tr.data('template')).html();var template = Handlebars.compile(source);$.getJSON(re, data, function(dt,st,xhr){ta.html(template(dt));ta.parent().find('.trigger').baldrick();le.removeClass(lc);return cb(dt,{trigger: tr[0], target: ta[0]},st,xhr);});
+				$.ajaxSetup({cache: ch});
+				if((tr.data('templateUrl') || tr.data('template')) && typeof Handlebars === 'object'){
+					if(tr.data('template')){
+						var source = $(tr.data('template')).html();
+						var template = Handlebars.compile(source);
+						$.getJSON(re, data, function(dt,st,xhr){ta.html(template(dt));ta.parent().find('.trigger').baldrick();le.removeClass(lc);return cb(dt,{trigger: tr[0], target: ta[0]},st,xhr);});
+					}else if(tr.data('templateUrl')){
+						$.get(tr.data('templateUrl'), function(source){
+							var template = Handlebars.compile(source);
+							$.getJSON(re, data, function(dt,st,xhr){ta.html(template(dt));ta.parent().find('.trigger').baldrick();le.removeClass(lc);return cb(dt,{trigger: tr[0], target: ta[0]},st,xhr);});
+						});
+					}
 				}else{
 					//ta.load(re, data, function(tx,st,xhr){$(this).parent().find('.trigger').baldrick();le.removeClass(lc);return cb(tx,st,xhr);});
-					$.post(re, data, function(tx,st,xhr){
-						if(typeof ta !== 'function'){
-							$(ta)[ti](tx);
-							$(ta).parent().find('.trigger').baldrick();
-							le.removeClass(lc);
-						}
-						return cb(tx,{trigger: tr[0], target: ta[0]}, st,xhr);
-					});
+					if(typeof cb === 'string'){
+						$.getScript(re, function(tx,st,xhr){return (typeof window[cb] === 'function' ? window[cb](tx,{trigger: tr[0], target: ta[0]}, st,xhr) : true);});
+					}else{
+						$.post(re, data, function(tx,st,xhr){
+							if(typeof ta !== 'function' && typeof ta !== 'string'){
+								$(ta)[ti](tx);
+								$(ta).parent().find('.trigger').baldrick();
+								le.removeClass(lc);
+							}
+							return cb(tx,{trigger: tr[0], target: ta[0]}, st,xhr);
+						});
+					}
 				}
 			});
 			if(tr.data('autoload') || tr.data('poll')){(tr.data('delay') ? setTimeout(function(tr, ev){return tr.trigger(ev);}, tr.data('delay'), tr, ev) : tr.trigger(ev));}
