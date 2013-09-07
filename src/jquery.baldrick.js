@@ -1,7 +1,7 @@
 /* BaldrickJS  V2.01 | (C) David Cramer - 2013 | MIT License */
 (function($){
 	$.fn.baldrick = function(){
-		this.removeClass('trigger').addClass('_tisBound');
+		this.removeClass(this.selector.split('.')[1]).addClass('_tisBound');
 		var defaults = {};
 		if(arguments.length){
 			defaults = arguments[0];
@@ -41,7 +41,15 @@
 						cb = (typeof cb === 'boolean' ? function(){} : cb);
 				}
 				e.preventDefault();
-				(tr.data('group') ? $('._tisBound[data-group="'+tr.data('group')+'"]').removeClass(ac) : $('._tisBound:not([data-group])').removeClass(ac));
+				(tr.data('group') ? $('._tisBound[data-group="'+tr.data('group')+'"]').each(function(){
+					var or  = $(this),
+						tel = ($(this).data('activeElement') ? $($(this).data('activeElement')) : or );
+					tel.removeClass((or.data('activeClass') ? or.data('activeClass') : ac));}
+				) : $('._tisBound:not([data-group])').each(function(){
+					var or  = $(this),
+						tel = ($(this).data('activeElement') ? $($(this).data('activeElement')) : or );
+					tel.removeClass((or.data('activeClass') ? or.data('activeClass') : ac));  }
+				));
 				ae.addClass(ac);
 				if(typeof le !== 'function' && typeof le !== 'string'){ le.addClass(lc);}
 				var sd = tr.serializeArray(), data;
@@ -67,18 +75,21 @@
 						});
 					}
 				}else{
-					//ta.load(re, data, function(tx,st,xhr){$(this).parent().find('.trigger').baldrick();le.removeClass(lc);return cb(tx,st,xhr);});
 					if(typeof cb === 'string'){
 						$.getScript(re, function(tx,st,xhr){return (typeof window[cb] === 'function' ? window[cb](tx,{trigger: tr[0], target: ta[0]}, st,xhr) : true);});
 					}else{
-						$.post(re, data, function(tx,st,xhr){
-							if(typeof ta !== 'function' && typeof ta !== 'string'){
-								$(ta)[ti](tx);
-								$(ta).parent().find('.trigger').baldrick();
-								le.removeClass(lc);
-							}
-							return cb(tx,{trigger: tr[0], target: ta[0]}, st,xhr);
-						});
+						if(typeof data === 'string' && typeof ta !== 'function'){
+							ta.load(re, data, function(tx,st,xhr){$(ta).parent().find('.trigger').baldrick();le.removeClass(lc);return cb(tx,st,xhr);});
+						}else{
+							$.post(re, data, function(tx,st,xhr){
+								if(typeof ta !== 'function' && typeof ta !== 'string'){
+									$(ta)[ti](tx);
+									$(ta).parent().find('.trigger').baldrick();
+									le.removeClass(lc);
+								}
+								return cb(tx,{trigger: tr[0], target: ta[0]}, st,xhr);
+							});
+						}
 					}
 				}
 			});
