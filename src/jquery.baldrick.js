@@ -2,7 +2,8 @@
 (function($){
 	$.fn.baldrick = function(){
 		this.removeClass(this.selector.split('.')[1]).addClass('_tisBound');
-		var defaults = {};
+		var defaults = {},
+			triggerClass = this.selector;
 		if(arguments.length){
 			defaults = arguments[0];
 		}
@@ -67,11 +68,11 @@
 					if(tr.data('template')){
 						var source = $(tr.data('template')).html();
 						var template = Handlebars.compile(source);
-						$.getJSON(re, data, function(dt,st,xhr){ta.html(template(dt));ta.parent().find('.trigger').baldrick();le.removeClass(lc);return cb(dt,{trigger: tr[0], target: ta[0]},st,xhr);});
+						$.getJSON(re, data, function(dt,st,xhr){ta.html(template(dt));ta.parent().find(triggerClass).baldrick();le.removeClass(lc);return cb(dt,{trigger: tr[0], target: ta[0]},st,xhr);});
 					}else if(tr.data('templateUrl')){
 						$.get(tr.data('templateUrl'), function(source){
 							var template = Handlebars.compile(source);
-							$.getJSON(re, data, function(dt,st,xhr){ta.html(template(dt));ta.parent().find('.trigger').baldrick();le.removeClass(lc);return cb(dt,{trigger: tr[0], target: ta[0]},st,xhr);});
+							$.getJSON(re, data, function(dt,st,xhr){ta.html(template(dt));ta.parent().find(triggerClass).baldrick();le.removeClass(lc);return cb(dt,{trigger: tr[0], target: ta[0]},st,xhr);});
 						});
 					}
 				}else{
@@ -79,12 +80,12 @@
 						$.getScript(re, function(tx,st,xhr){return (typeof window[cb] === 'function' ? window[cb](tx,{trigger: tr[0], target: ta[0]}, st,xhr) : true);});
 					}else{
 						if(typeof data === 'string' && typeof ta !== 'function'){
-							ta.load(re, data, function(tx,st,xhr){$(ta).parent().find('.trigger').baldrick();le.removeClass(lc);return cb(tx,st,xhr);});
+							ta.load(re, data, function(tx,st,xhr){$(ta).parent().find(triggerClass).baldrick();le.removeClass(lc);return cb(tx,st,xhr);});
 						}else{
 							$.post(re, data, function(tx,st,xhr){
 								if(typeof ta !== 'function' && typeof ta !== 'string'){
 									$(ta)[ti](tx);
-									$(ta).parent().find('.trigger').baldrick();
+									$(ta).parent().find(triggerClass).baldrick();
 									le.removeClass(lc);
 								}
 								return cb(tx,{trigger: tr[0], target: ta[0]}, st,xhr);
