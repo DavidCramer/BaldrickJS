@@ -6,7 +6,7 @@
 		if(arguments.length){
 			defaults = arguments[0];
 		}
-		if(typeof baldrickHelper[helper] !== 'undefined'){
+		if(typeof baldrickHelper !== 'undefined'){
 			for(var helper in baldrickHelper){
 				if(typeof baldrickHelper[helper] === 'function'){
 					baldrickHelper[helper](this);
