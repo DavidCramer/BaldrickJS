@@ -1,17 +1,19 @@
 /* BaldrickJS  V2.01 | (C) David Cramer - 2013 | MIT License */
 (function($){
-    $.fn.baldrick = function(){
-    	this.removeClass('trigger').addClass('_tisBound');
-    	var defaults = {};
-    	if(arguments.length){
-    		defaults = arguments[0];
-    	}
-    	for(var helper in baldrickHelper){
-    		if(typeof baldrickHelper[helper] === 'function'){
-    			baldrickHelper[helper](this);
-    		}
-    	}
-        return this.each(function(){
+	$.fn.baldrick = function(){
+		this.removeClass('trigger').addClass('_tisBound');
+		var defaults = {};
+		if(arguments.length){
+			defaults = arguments[0];
+		}
+		if(typeof baldrickHelper[helper] !== 'undefined'){
+			for(var helper in baldrickHelper){
+				if(typeof baldrickHelper[helper] === 'function'){
+					baldrickHelper[helper](this);
+				}
+			}
+		}
+		return this.each(function(){
 			var tr = $(this), ev = (tr.data('event') ? tr.data('event') : 'click');
 			tr.on(ev, function(e){
 				if(tr.data('for')){
@@ -83,6 +85,6 @@
 			if(tr.data('autoload') || tr.data('poll')){(tr.data('delay') ? setTimeout(function(tr, ev){return tr.trigger(ev);}, tr.data('delay'), tr, ev) : tr.trigger(ev));}
 			if(tr.data('poll')){(tr.data('delay') ? setTimeout(function(tr, ev){return setInterval(function(tr, ev){return tr.trigger(ev);}, tr.data('poll'), tr, ev)}, tr.data('delay')) : setInterval(function(tr, ev){return tr.trigger(ev);}, tr.data('poll'), tr, ev))}
 			return this;
-        });
-    };
+		});
+	};
 })(jQuery);
