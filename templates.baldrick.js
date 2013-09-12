@@ -24,7 +24,6 @@
 					}
 					if(tr.data('template') && typeof Handlebars === 'object'){
 						tml = $(tr.data('template')).html();
-						console.log(tml);
 						params.template = Handlebars.compile(tml);
 						return params;
 					}
