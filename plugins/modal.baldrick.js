@@ -44,7 +44,7 @@
 					var modal;
 					if(trigger.data('request')){
 						trigger.data('target', '#baldrickModalBody');
-						trigger.data('loaderElement', '#baldrickModalLoader');
+						trigger.data('loadElement', '#baldrickModalLoader');
 					}
 
 					if(trigger.data('modalTemplate')){
