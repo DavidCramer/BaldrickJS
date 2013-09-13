@@ -43,14 +43,14 @@
 		<a class="btn baldrick" data-modal="true" data-template="#template-demo-1" data-request="demo.json">Modal</a>
 		<a class="btn baldrick" data-modal="true" data-template="#template-demo-2" data-request="demo.json" data-modal-title="Modal With Title">Baldrick Modal + Title</a>
 		<a class="btn baldrick" data-modal="true" data-template="#template-demo-3" data-request="demo.json" data-modal-title="An animated Modal" data-modal-animate="true">Baldrick Modal + Animate</a>
-		<a class="btn baldrick" data-modal="true" data-template="#template-demo-1" data-request="demo.json" data-modal-buttons="Close|dismiss">Modal</a>
-		<a class="btn baldrick" data-modal="true" data-template="#template-demo-1" data-modal-content="#template-demo-4">Modal Content</a>
+		<a class="btn baldrick" data-modal="true" data-template="#template-demo-4" data-request="demo.json" data-modal-buttons="Close|dismiss">Modal Buttons</a>
+		<a class="btn baldrick" data-modal="true" data-template="#template-demo-1" data-modal-content="#template-demo-5">Static Content</a>
 		<hr>
 
 	</section>
 
 	<section id="contents">
-		<p>Modal plugin test page.</p>
+		<p>Examples using BaldrickJS with modals. No javascript written to create these, just html attribute on the buttons.</p>
 
 	</section>
 
@@ -64,9 +64,10 @@
 		</script>
 		<script type="text/html" id="template-demo-2"><p>{{demo2}}</p></script>
 		<script type="text/html" id="template-demo-3"><p>{{demo3}}</p></script>
-		<script type="text/html" id="template-demo-4"><h3>Static Content</h3>
+		<script type="text/html" id="template-demo-4"><p>{{demo4}}</p></script>
+		<script type="text/html" id="template-demo-5"><h3>Static Content</h3>
 		<p>This is provided by suppying data-modal-content="element_selector".</p>
-		It will also be parsed for ne triggers brought in. <button class="btn btn-primary baldrick" data-request="README.md" data-target="#baldrickModalBody">More</button> OR <a class="btn baldrick" data-modal="true" data-template="#template-demo-3" data-request="demo.json" data-modal-title="An animated Modal" data-modal-animate="true">Baldrick Modal + Animate</a></p>
+		It will also be parsed for ne triggers brought in. <button class="btn btn-primary baldrick" data-request="demo.html" data-target="#baldrickModalBody">More</button> OR <a class="btn baldrick" data-modal="true" data-template="#template-demo-3" data-request="demo.json" data-modal-title="An animated Modal" data-modal-animate="true">Modal Brought in Via request</a></p>
 		</script>
 		<!-- Le javascript
 		================================================== -->
