@@ -66,7 +66,7 @@
 	};
 	$.fn.baldrick.registerhelper({
 		request_params		: {
-			checkjason		: function(request, params){
+			checkjason		: function(request, defaults, params){
 				if((params.trigger.data('templateUrl') || params.trigger.data('template')) && typeof Handlebars === 'object'){
 					request.dataType = 'json';
 					return request;

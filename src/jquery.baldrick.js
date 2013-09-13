@@ -30,6 +30,11 @@
 			_doerror	: function(opts){
 				opts.params.complete(xhr,ts);
 			}
+		},
+		refresh	: {
+			_dorefresh	: function(opts, defaults){
+				$(defaults.triggerClass).baldrick(defaults);
+			}
 		}
 	};
 
@@ -39,7 +44,7 @@
 			inst			= this.not('._tisBound');
 
 		inst.addClass('_tisBound');
-		var defaults		= $.extend(true, arguments[0], { helpers : baldrickhelpers}),
+		var defaults		= $.extend(true, arguments[0], { helpers : baldrickhelpers}, {triggerClass:triggerClass}),
 			ncb				= function(){return true;},
 			callbacks		= {
 				"before"	: ncb,
@@ -55,18 +60,18 @@
 				callbacks[c] = defaults[c];
 			}
 		}
-		var do_helper = function(h,input,options){
+		var do_helper = function(h,input, ev){
 			var out;
 			if(typeof defaults.helpers[h] === 'object'){
 				for(var helper in defaults.helpers[h]){
 					if(typeof defaults.helpers[h][helper] === 'function'){
-						out = defaults.helpers[h][helper](input, options);
+						out = defaults.helpers[h][helper](input, defaults, ev);
 						if(typeof out !== 'undefined'){ input = out;}
 						if(input === false){return false;}
 					}
 				}
 			}else if(typeof defaults.helpers[h] === 'function'){
-				out = defaults.helpers[h](input, options);
+				out = defaults.helpers[h](input, defaults, ev);
 				if(typeof out !== 'undefined'){ input = out;}
 				if(!input){return false;}
 			}
@@ -173,8 +178,6 @@
 							
 							do_helper('filter', {data:dt, request: request, params: params});
 
-							$(triggerClass).baldrick(defaults);
-							
 							if(typeof cb === 'string'){
 								if(typeof window[cb] === 'function'){
 									return window[cb](tr,params.target);
@@ -186,6 +189,8 @@
 						complete: function(xhr,ts){
 							
 							do_helper('request_complete', {jqxhr:xhr, textStatus:ts, request:request, params:params});
+							
+							do_helper('refresh', {jqxhr:xhr, textStatus:ts, request:request, params:params});
 
 							if(tr.data('once')){
 								tr.off(ev).removeClass('_tisBound');
