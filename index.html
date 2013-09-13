@@ -44,6 +44,7 @@
 		<a class="btn baldrick" data-modal="true" data-template="#template-demo-2" data-request="demo.json" data-modal-title="Modal With Title">Baldrick Modal + Title</a>
 		<a class="btn baldrick" data-modal="true" data-template="#template-demo-3" data-request="demo.json" data-modal-title="An animated Modal" data-modal-animate="true">Baldrick Modal + Animate</a>
 		<a class="btn baldrick" data-modal="true" data-template="#template-demo-1" data-request="demo.json" data-modal-buttons="Close|dismiss">Modal</a>
+		<a class="btn baldrick" data-modal="true" data-template="#template-demo-1" data-modal-content="#template-demo-4">Modal Content</a>
 		<hr>
 
 	</section>
@@ -63,7 +64,10 @@
 		</script>
 		<script type="text/html" id="template-demo-2"><p>{{demo2}}</p></script>
 		<script type="text/html" id="template-demo-3"><p>{{demo3}}</p></script>
-
+		<script type="text/html" id="template-demo-4"><h3>Static Content</h3>
+		<p>This is provided by suppying data-modal-content="element_selector".</p>
+		It will also be parsed for ne triggers brought in. <button class="btn btn-primary baldrick" data-request="README.md" data-target="#baldrickModalBody">More</button> OR <a class="btn baldrick" data-modal="true" data-template="#template-demo-3" data-request="demo.json" data-modal-title="An animated Modal" data-modal-animate="true">Baldrick Modal + Animate</a></p>
+		</script>
 		<!-- Le javascript
 		================================================== -->
 		<!-- Placed at the end of the document so the pages load faster -->

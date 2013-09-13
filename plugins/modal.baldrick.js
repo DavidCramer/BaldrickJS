@@ -24,34 +24,52 @@
 					append($('<h3>', {id:"baldrickModalLable"})).
 					appendTo(modal);
 
-					modal.append($('<div>', {class:"modal-body", id: 'baldrickModalBody'})).append($('<div>', {class:"modal-footer", id: "baldrickModalFooter"}));
+					modal.append($('<div>', {class:"modal-body", id: 'baldrickModalLoader'})).
+					append($('<div>', {class:"modal-body", id: 'baldrickModalBody'})).
+					append($('<div>', {class:"modal-footer", id: "baldrickModalFooter"}));
 					modal.appendTo($('body'));
-					console.log(modal);
 				}
 			}
 		},
+		request_complete	: {
+			togglebody		: function(){
+				$('#baldrickModalLoader').hide();
+				$('#baldrickModalBody').show();
+			}
+		},
 		event	: {
-			checkModal : function(element, e){
+			checkModal : function(element,defaults, e){
 				var trigger = $(element);
-				if(trigger.data('modal') && trigger.data('request')){
+				if(trigger.data('modal') && (trigger.data('request') || trigger.data('modalContent'))){
 					var modal;
-					trigger.data('target', '#baldrickModalBody');
+					if(trigger.data('request')){
+						trigger.data('target', '#baldrickModalBody');
+						trigger.data('loaderElement', '#baldrickModalLoader');
+					}
+
 					if(trigger.data('modalTemplate')){
 						modal = $(trigger.data('modalTemplate'));
 					}else{
 						modal = $('#_baldrickModal');
 					}
+					// close if already open
+					if($('.modal-backdrop').length){
+						modal.modal('hide');
+					}
+
 					// get options.
 					var label	= $('#baldrickModalLable'),
+						loader	= $('#baldrickModalLoader'),
 						body	= $('#baldrickModalBody'),
 						footer	= $('#baldrickModalFooter');
 
 					// reset modal
 					modal.removeClass('fade');
-					label.empty().parent().hide();
-					body.empty();
-					footer.empty().hide();
 
+					label.empty().parent().hide();
+					loader.show();
+					body.hide();
+					footer.empty().hide();
 					if(trigger.data('modalTitle')){
 						label.html(trigger.data('modalTitle')).parent().show();
 					}
@@ -80,7 +98,15 @@
 							}
 							footer.show();
 						}
-						console.log(buttons);
+						//console.log(buttons);
+					}
+
+					//optional content
+					if(trigger.data('modalContent')){
+						body.html($(trigger.data('modalContent')).html());
+						loader.hide();
+						body.show();
+						$(defaults.triggerClass).baldrick(defaults);
 					}
 					// launch
 					modal.modal('show');
