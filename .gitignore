@@ -5,4 +5,18 @@
 
 button.html
 
+<<<<<<< HEAD
 template.html
+=======
+process.php
+
+index.php
+
+*.html
+
+script.js
+
+test.json
+
+*.php
+>>>>>>> master
