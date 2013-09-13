@@ -12,8 +12,6 @@ process.php
 
 index.php
 
-*.html
-
 script.js
 
 test.json

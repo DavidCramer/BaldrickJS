@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>BaldrickJS Test Page</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+			<![endif]-->
+
+			<link href="css/bootstrap.css" rel="stylesheet">
+			<style type="text/css">
+			body{margin: 55px 0 0 0;}
+			.loading > * {opacity: .3}
+			.loading {background: url("css/loader.gif") no-repeat scroll center center / 18px auto transparent;min-height: 25px;}
+			</style>
+
+		</head>
+
+		<body class="preview" id="top" data-spy="scroll" data-target=".subnav" data-offset="80">
+
+
+	<!-- Navbar
+	================================================== -->
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</a>
+				<a class="brand" href="../">BaldrickJS Modal Plugin</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+
+
+	<section id="modals">
+		<a class="btn baldrick" data-modal="true" data-modal-animate="true" data-request="demo.html">Plain Modal</a>
+		<a class="btn baldrick" data-modal="true" data-template="#template-demo-1" data-request="demo.json">Modal</a>
+		<a class="btn baldrick" data-modal="true" data-template="#template-demo-2" data-request="demo.json" data-modal-title="Modal With Title">Baldrick Modal + Title</a>
+		<a class="btn baldrick" data-modal="true" data-template="#template-demo-3" data-request="demo.json" data-modal-title="An animated Modal" data-modal-animate="true">Baldrick Modal + Animate</a>
+		<a class="btn baldrick" data-modal="true" data-template="#template-demo-1" data-request="demo.json" data-modal-buttons="Close|dismiss">Modal</a>
+		<hr>
+
+	</section>
+
+	<section id="contents">
+		<p>Modal plugin test page.</p>
+
+	</section>
+
+
+
+
+
+		<script type="text/html" id="template-demo-1">
+		<h3 class="page-header" style="margin-top:-9px;">{{title}}</h3>
+		<p>{{demo1}}</p>
+		</script>
+		<script type="text/html" id="template-demo-2"><p>{{demo2}}</p></script>
+		<script type="text/html" id="template-demo-3"><p>{{demo3}}</p></script>
+
+		<!-- Le javascript
+		================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="libs/boostrap-modal.js"></script>
+		<script src="src/jquery.baldrick.js"></script>
+		<script src="libs/handlebars.js"></script>
+		<script src="plugins/handlebars.baldrick.js"></script>
+		<script src="plugins/modal.baldrick.js"></script>
+
+
+	</body>
+	</html>
