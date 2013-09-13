@@ -1,2 +1,247 @@
 /* BaldrickJS  V2.01 | (C) David Cramer - 2013 | MIT License */
-!function(a){var b={bind:{},event:{_event:function(a){return a}},filter:{_totarget:function(a){a.params.target&&a.params.target[a.params.targetInsert](a.data)}},request:{_dorequest:function(b){return a.ajax(b.request)}},request_complete:{_docomplete:function(a){a.params.complete(a.jqxhr,a.textStatus),a.params.loadElement.removeClass(a.params.loadClass)}},request_error:{_doerror:function(a){a.params.complete(xhr,ts)}}};a.fn.baldrick=function(){var c=this.selector,d=this.not("._tisBound");d.addClass("_tisBound");var e=a.extend(!0,arguments[0],{helpers:b}),f=function(){return!0},g={before:f,callback:f,complete:f,error:f};for(var i in g)"string"==typeof e[i]?g[i]="function"==typeof window[e[i]]?window[e[i]]:f:"function"==typeof e[i]&&(g[i]=e[i]);var j=function(a,b,c){var d;if("object"==typeof e.helpers[a]){for(var f in e.helpers[a])if("function"==typeof e.helpers[a][f]&&(d=e.helpers[a][f](b,c),"undefined"!=typeof d&&(b=d),b===!1))return!1}else if("function"==typeof e.helpers[a]&&(d=e.helpers[a](b,c),"undefined"!=typeof d&&(b=d),!b))return!1;return b};return d=j("bind",d),d===!1?this:j("ready",d.each(function(){var b=a(this),f=b.data("event")?b.data("event"):e.event?e.event:b.is("form")?"submit":"click";return b.on(f,function(b){var h=a(j("event",this,b));if(h.data("for")){var i=a(h.data("for")),k=a.extend({},h.data());return delete k.for,i.data(k),i.trigger(i.data("event")?i.data("event"):f)}if(h.is("form")&&!h.data("request")&&h.attr("action")&&h.data("request",h.attr("action")),h.is("a")&&!h.data("request")&&h.attr("href")&&h.data("request",h.attr("href")),(h.data("before")?"function"==typeof window[h.data("before")]?window[h.data("before")](this,b):g.before(this,b):g.before(this,b))!==!1){var l={trigger:h,callback:h.data("callback")?"function"==typeof window[h.data("callback")]?window[h.data("callback")]:h.data("callback"):g.callback,method:h.data("method")?h.data("method"):h.attr("method")?h.attr("method"):e.method?e.method:"GET",dataType:h.data("type")?h.data("type"):e.dataType?e.dataType:!1,target:h.data("target")?a(h.data("target")):e.target?a(e.target):a("<html>"),targetInsert:h.data("targetInsert")?"replace"===h.data("targetInsert")?"replaceWith":h.data("targetInsert"):e.targetInsert?"replace"===e.targetInsert?"replaceWith":e.targetInsert:"html",loadClass:h.data("loadClass")?h.data("loadClass"):e.loadClass?e.loadClass:"loading",activeClass:h.data("activeClass")?h.data("activeClass"):e.activeClass?e.activeClass:"active",activeElement:h.data("activeElement")?"_parent"===h.data("activeElement")?h.parent():a(h.data("activeElement")):e.activeElement?"_parent"===e.activeElement?h.parent():a(e.activeElement):h,cache:h.data("cache")?h.data("cache"):e.cache?e.cache:!1,complete:h.data("complete")?"function"==typeof window[h.data("complete")]?window[h.data("complete")]:g.complete:g.complete,resultSelector:!1};switch(l.url=h.data("request")?h.data("request"):e.request?e.request:l.callback,l.loadElement=h.data("loadElement")?a(h.data("loadElement")):e.loadElement?a(e.loadElement)?a(e.loadElement):l.target:l.target,typeof l.url){case"function":return l.url(this,b);case"boolean":case"object":return l.url;case"string":if(l.url.indexOf(" ")>-1){var m=l.url.split(" ");l.url=m[0],l.resultSelector=m[1]}}if(l=j("params",l),l===!1)return!1;b.preventDefault(),h.data("group")?a('._tisBound[data-group="'+h.data("group")+'"]').each(function(){var b=a(this),c=b.data("activeElement")?"_parent"===b.data("activeElement")?b.parent():a(b.data("activeElement")):e.activeElement?"_parent"===e.activeElement?h.parent():a(e.activeElement):b;c.removeClass(b.data("activeClass")?b.data("activeClass"):e.activeClass?e.activeClass:l.activeClass)}):a("._tisBound:not([data-group])").each(function(){var b=a(this),c=b.data("activeElement")?"_parent"===b.data("activeElement")?b.parent():a(b.data("activeElement")):e.activeElement?"_parent"===e.activeElement?h.parent():a(e.activeElement):b;c.removeClass(b.data("activeClass")?b.data("activeClass"):e.activeClass?e.activeClass:l.activeClass)}),l.activeElement.addClass(l.activeClass),l.loadElement.addClass(l.loadClass);var p,o=h.serializeArray();if(o.length){var q=[];a.each(h.data(),function(a,b){q.push({name:a,value:b})}),p=a.extend(q,o)}else p=a.param(h.data());var r={url:l.url,data:p,cache:l.cache,type:l.method,success:function(b,d,f){if(l.resultSelector){var g=a(l.resultSelector,a("<html>").html(b));1===g.length?b=a("<html>").html(g).html():(b=a("<html>"),g.each(function(){b.append(this)}),b=b.html())}if(j("filter",{data:b,request:r,params:l}),a(c).baldrick(e),"string"==typeof cb){if("function"==typeof window[cb])return window[cb](h,l.target)}else if("function"==typeof cb)return cb(b,{trigger:h,target:l.target},f)},complete:function(a,b){j("request_complete",{jqxhr:a,textStatus:b,request:r,params:l}),h.data("once")&&h.off(f).removeClass("_tisBound")},error:function(a,b,c){j("request_error",{jqxhr:a,textStatus:b,error:c,request:r,params:l})}};return l.dataType&&(r.dataType=l.dataType),r=j("request_params",r,l),r===!1?d:j("request",{request:r,params:l})}}),(b.data("autoload")||b.data("poll"))&&(b.data("delay")?setTimeout(function(a,b){return a.trigger(b)},b.data("delay"),b,f):b.trigger(f)),b.data("poll")&&(b.data("delay")?setTimeout(function(a,b){return setInterval(function(a,b){return a.trigger(b)},a.data("poll"),a,b)},b.data("delay")):setInterval(function(a,b){return a.trigger(b)},b.data("poll"),b,f)),this}))},a.fn.baldrick.registerhelper=function(c,d,e){if("object"==typeof c)b=a.extend(!0,c,b);else if("string"==typeof c&&"string"==typeof d&&"function"==typeof e){var f={};f[c]={},f[c][d]=e,b=a.extend(!0,f,b)}}}(jQuery);
+(function($){
+
+	var baldrickhelpers = {
+		bind			: {},
+		event			: {
+			_event		: function(el,e){
+				return el;
+			}
+		},
+		filter			: {
+			_totarget	: function(opts){
+				if(opts.params.target){
+					opts.params.target[opts.params.targetInsert](opts.data);
+				}
+			}
+		},
+		request			: {
+			_dorequest	: function(opts){
+				return $.ajax(opts.request);
+			}
+		},
+		request_complete: {
+			_docomplete	: function(opts){
+				opts.params.complete(opts.jqxhr,opts.textStatus);
+				opts.params.loadElement.removeClass(opts.params.loadClass);
+			}
+		},
+		request_error	: {
+			_doerror	: function(opts){
+				opts.params.complete(xhr,ts);
+			}
+		}
+	};
+
+	$.fn.baldrick = function(){
+
+		var triggerClass	= this.selector,
+			inst			= this.not('._tisBound');
+
+		inst.addClass('_tisBound');
+		var defaults		= $.extend(true, arguments[0], { helpers : baldrickhelpers}),
+			ncb				= function(){return true;},
+			callbacks		= {
+				"before"	: ncb,
+				"callback"	: ncb,
+				"complete"	: ncb,
+				"error"		: ncb
+			},
+			output;
+		for(var c in callbacks){
+			if(typeof defaults[c] === 'string'){
+				callbacks[c] = (typeof window[defaults[c]] === 'function' ? window[defaults[c]] : ncb);
+			}else if(typeof defaults[c] === 'function'){
+				callbacks[c] = defaults[c];
+			}
+		}
+		var do_helper = function(h,input,options){
+			var out;
+			if(typeof defaults.helpers[h] === 'object'){
+				for(var helper in defaults.helpers[h]){
+					if(typeof defaults.helpers[h][helper] === 'function'){
+						out = defaults.helpers[h][helper](input, options);
+						if(typeof out !== 'undefined'){ input = out;}
+						if(input === false){return false;}
+					}
+				}
+			}else if(typeof defaults.helpers[h] === 'function'){
+				out = defaults.helpers[h](input, options);
+				if(typeof out !== 'undefined'){ input = out;}
+				if(!input){return false;}
+			}
+			return input;
+		};
+
+		inst = do_helper('bind', inst);
+		if(inst === false){return this;}
+		return do_helper('ready', inst.each(function(){
+			var el = $(this), ev = (el.data('event') ? el.data('event') : (defaults.event ? defaults.event : ( el.is('form') ? 'submit' : 'click' )));
+			el.on(ev, function(e){
+				var tr = $(do_helper('event', this, e));
+
+				if(tr.data('for')){
+					var fort		= $(tr.data('for')),
+						datamerge	= $.extend({}, tr.data());
+						delete datamerge.for;
+					fort.data(datamerge);
+					return fort.trigger((fort.data('event') ? fort.data('event') : ev));
+				}
+				if(tr.is('form') && !tr.data('request') && tr.attr('action')){
+					tr.data('request', tr.attr('action'));
+				}
+				if(tr.is('a') && !tr.data('request') && tr.attr('href')){
+					tr.data('request', tr.attr('href'));
+				}
+
+				if((tr.data('before') ? (typeof window[tr.data('before')] === 'function' ? window[tr.data('before')](this, e) : callbacks.before(this, e)) : callbacks.before(this, e)) === false){return;}
+
+				var params = {
+					trigger: tr,
+					callback : (tr.data('callback')		? ((typeof window[tr.data('callback')] === 'function') ? window[tr.data('callback')] : tr.data('callback')) : callbacks.callback),
+					method : (tr.data('method')			? tr.data('method')				: (tr.attr('method')		? tr.attr('method') :(defaults.method ? defaults.method : 'GET'))),
+					dataType : (tr.data('type')			? tr.data('type')				: (defaults.dataType		? defaults.dataType : false)),
+					target : (tr.data('target')			? $(tr.data('target'))			: (defaults.target			? $(defaults.target) : $('<html>'))),
+					targetInsert : (tr.data('targetInsert')	? (tr.data('targetInsert') === 'replace' ? 'replaceWith' : tr.data('targetInsert'))	: (defaults.targetInsert ? (defaults.targetInsert === 'replace' ? 'replaceWith': defaults.targetInsert) : 'html')),
+					loadClass : (tr.data('loadClass')		? tr.data('loadClass')			: (defaults.loadClass		? defaults.loadClass : 'loading')),
+					activeClass : (tr.data('activeClass')	? tr.data('activeClass')		: (defaults.activeClass		? defaults.activeClass : 'active')),
+					activeElement : (tr.data('activeElement')	? (tr.data('activeElement') === '_parent' ? tr.parent() :$(tr.data('activeElement')))	: (defaults.activeElement ? (defaults.activeElement === '_parent' ? tr.parent() : $(defaults.activeElement)) : tr)),
+					cache : (tr.data('cache')			? tr.data('cache')				: (defaults.cache			? defaults.cache : false)),
+					complete : (tr.data('complete')		? (typeof window[tr.data('complete')] === 'function'		? window[tr.data('complete')] : callbacks.complete ) : callbacks.complete),
+					resultSelector : false
+				};
+				params.url			= (tr.data('request')		? tr.data('request')			: (defaults.request			? defaults.request : params.callback));
+				params.loadElement	= (tr.data('loadElement')	? $(tr.data('loadElement'))		: (defaults.loadElement		? ($(defaults.loadElement) ? $(defaults.loadElement) : params.target) : params.target));
+
+				switch (typeof params.url){
+					case 'function' : return params.url(this, e);
+					case 'boolean' : case 'object': return params.url;
+					case 'string' :
+						if(params.url.indexOf(' ') > -1){
+							var rp = params.url.split(' ');
+							params.url	= rp[0];
+							params.resultSelector	= rp[1];
+						}
+				}
+				params = do_helper('params', params);
+				if(params === false){return false;}
+
+				e.preventDefault();
+				var active = (tr.data('group') ? $('._tisBound[data-group="'+tr.data('group')+'"]').each(function(){
+					var or  = $(this),
+						tel = (or.data('activeElement') ? (or.data('activeElement') === '_parent' ? or.parent() :$(or.data('activeElement'))) : (defaults.activeElement ? (defaults.activeElement === '_parent' ? tr.parent() : $(defaults.activeElement)) : or) );
+					tel.removeClass((or.data('activeClass') ? or.data('activeClass') : (defaults.activeClass ? defaults.activeClass : params.activeClass)));}
+				) : $('._tisBound:not([data-group])').each(function(){
+					var or  = $(this),
+						tel = (or.data('activeElement') ? (or.data('activeElement') === '_parent' ? or.parent() :$(or.data('activeElement'))) : (defaults.activeElement ? (defaults.activeElement === '_parent' ? tr.parent() : $(defaults.activeElement)) : or) );
+					tel.removeClass((or.data('activeClass') ? or.data('activeClass') : (defaults.activeClass ? defaults.activeClass : params.activeClass)));}
+				));
+				
+				params.activeElement.addClass(params.activeClass);
+				params.loadElement.addClass(params.loadClass);
+
+				var sd = tr.serializeArray(), data;
+				if(sd.length){
+					var arr = [];
+					$.each( tr.data(), function(k,v) {
+						arr.push({name:k, value:v});
+					});
+					data = $.extend(arr,sd);
+				}else{
+					data = $.param(tr.data());
+				}
+
+				var request = {
+						url		: params.url,
+						data	: data,
+						cache	: params.cache,
+						type	: params.method,
+						success	: function(dt, ts, xhr){
+
+							if(params.resultSelector){
+								var tmp = $(params.resultSelector, $('<html>').html(dt));
+								if(tmp.length === 1){
+									dt = $('<html>').html(tmp).html();
+								}else{
+									dt = $('<html>');
+									tmp.each(function(){
+										dt.append(this);
+									});
+									dt = dt.html();
+								}
+							}
+							
+							do_helper('filter', {data:dt, request: request, params: params});
+
+							$(triggerClass).baldrick(defaults);
+							
+							if(typeof cb === 'string'){
+								if(typeof window[cb] === 'function'){
+									return window[cb](tr,params.target);
+								}
+							}else if(typeof cb === 'function'){
+								return cb(dt,{trigger:tr,target:params.target},xhr);
+							}
+						},
+						complete: function(xhr,ts){
+							
+							do_helper('request_complete', {jqxhr:xhr, textStatus:ts, request:request, params:params});
+
+							if(tr.data('once')){
+								tr.off(ev).removeClass('_tisBound');
+							}
+						},
+						error: function(xhr,ts,ex){
+							do_helper('request_error', {jqxhr:xhr, textStatus:ts, error:ex, request:request, params:params});
+						}
+					};
+				if(params.dataType){
+					request.dataType = params.dataType;
+				}
+				request = do_helper('request_params', request, params);
+				if(request === false){return inst;}
+
+				return do_helper('request', {request: request, params: params});
+			});
+			if(el.data('autoload') || el.data('poll')){
+				if(el.data('delay')){
+					setTimeout(function(el, ev){
+						return el.trigger(ev);
+					}, el.data('delay'), el, ev);
+				}else{
+					el.trigger(ev);
+				}
+			}
+
+			if(el.data('poll')){
+				if(el.data('delay')){
+					setTimeout(function(el, ev){
+						return setInterval(function(el, ev){
+							return el.trigger(ev);
+						}, el.data('poll'), el, ev);
+					}, el.data('delay'));
+				}else{
+					setInterval(function(el, ev){
+						return el.trigger(ev);
+					}, el.data('poll'), el, ev);
+				}
+			}
+			return this;
+		}));
+	};
+
+	$.fn.baldrick.registerhelper = function(helper, slug, callback){
+		if(typeof helper === 'object'){
+			baldrickhelpers = $.extend(true, helper, baldrickhelpers);
+		}else if(typeof helper === 'string' && typeof slug === 'string' && typeof callback === 'function'){
+			var newhelper = {};
+			newhelper[helper] = {};
+			newhelper[helper][slug] = callback;
+			baldrickhelpers = $.extend(true, newhelper, baldrickhelpers);
+		}
+		
+	};
+	jQuery(function($){
+		$('.baldrick').baldrick();
+	});
+})(jQuery);
