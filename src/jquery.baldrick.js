@@ -8,11 +8,27 @@
 				return el;
 			}
 		},
-		filter			: {},
-		params			: {},
+		filter			: {
+			_totarget	: function(opts){
+				if(opts.params.target){
+					opts.params.target[opts.params.targetInsert](opts.data);
+				}
+			}
+		},
 		request			: {
-			_dorequest	: function(params, el){
-				return $.ajax(params);
+			_dorequest	: function(opts){
+				return $.ajax(opts.request);
+			}
+		},
+		request_complete: {
+			_docomplete	: function(opts){
+				opts.params.complete(opts.jqxhr,opts.textStatus);
+				opts.params.loadElement.removeClass(opts.params.loadClass);
+			}
+		},
+		request_error	: {
+			_doerror	: function(opts){
+				opts.params.complete(xhr,ts);
 			}
 		}
 	};
@@ -40,15 +56,18 @@
 			}
 		}
 		var do_helper = function(h,input,options){
+			var out;
 			if(typeof defaults.helpers[h] === 'object'){
 				for(var helper in defaults.helpers[h]){
 					if(typeof defaults.helpers[h][helper] === 'function'){
-						input = defaults.helpers[h][helper](input, options);
-						if(!input){return false;}
+						out = defaults.helpers[h][helper](input, options);
+						if(typeof out !== 'undefined'){ input = out;}
+						if(input === false){return false;}
 					}
 				}
 			}else if(typeof defaults.helpers[h] === 'function'){
-				input = defaults.helpers[h](input, options);
+				out = defaults.helpers[h](input, options);
+				if(typeof out !== 'undefined'){ input = out;}
 				if(!input){return false;}
 			}
 			return input;
@@ -56,7 +75,7 @@
 
 		inst = do_helper('bind', inst);
 		if(inst === false){return this;}
-		return inst.each(function(){
+		return do_helper('ready', inst.each(function(){
 			var el = $(this), ev = (el.data('event') ? el.data('event') : (defaults.event ? defaults.event : ( el.is('form') ? 'submit' : 'click' )));
 			el.on(ev, function(e){
 				var tr = $(do_helper('event', this, e));
@@ -77,45 +96,49 @@
 
 				if((tr.data('before') ? (typeof window[tr.data('before')] === 'function' ? window[tr.data('before')](this, e) : callbacks.before(this, e)) : callbacks.before(this, e)) === false){return;}
 
-				var cb = (tr.data('callback')		? ((typeof window[tr.data('callback')] === 'function') ? window[tr.data('callback')] : tr.data('callback')) : callbacks.callback),
-					re = (tr.data('request')		? tr.data('request')			: (defaults.request			? defaults.request : cb)),
-					tp = (tr.data('method')			? tr.data('method')				: (tr.attr('method')		? tr.attr('method') :(defaults.method ? defaults.method : 'GET'))),
-					rt = (tr.data('type')			? tr.data('type')				: (defaults.dataType		? defaults.dataType : false)),
-					ta = (tr.data('target')			? $(tr.data('target'))			: (defaults.target			? $(defaults.target) : $('<html>'))),
-					ti = (tr.data('targetInsert')	? (tr.data('targetInsert') === 'replace' ? 'replaceWith' : tr.data('targetInsert'))	: (defaults.targetInsert ? (defaults.targetInsert === 'replace' ? 'replaceWith': defaults.targetInsert) : 'html')),
-					lc = (tr.data('loadClass')		? tr.data('loadClass')			: (defaults.loadClass		? defaults.loadClass : 'loading')),
-					ac = (tr.data('activeClass')	? tr.data('activeClass')		: (defaults.activeClass		? defaults.activeClass : 'active')),
-					ae = (tr.data('activeElement')	? (tr.data('activeElement') === '_parent' ? tr.parent() :$(tr.data('activeElement')))	: (defaults.activeElement ? (defaults.activeElement === '_parent' ? tr.parent() : $(defaults.activeElement)) : tr)),
-					le = (tr.data('loadElement')	? $(tr.data('loadElement'))		: (defaults.loadElement		? ($(defaults.loadElement) ? $(defaults.loadElement) : ta) : ta)),
-					ch = (tr.data('cache')			? tr.data('cache')				: (defaults.cache			? defaults.cache : false)),
-					cp = (tr.data('complete')		? (typeof window[tr.data('complete')] === 'function'		? window[tr.data('complete')] : callbacks.complete ) : callbacks.complete),
-					rq = false;
-				
+				var params = {
+					trigger: tr,
+					callback : (tr.data('callback')		? ((typeof window[tr.data('callback')] === 'function') ? window[tr.data('callback')] : tr.data('callback')) : callbacks.callback),
+					method : (tr.data('method')			? tr.data('method')				: (tr.attr('method')		? tr.attr('method') :(defaults.method ? defaults.method : 'GET'))),
+					dataType : (tr.data('type')			? tr.data('type')				: (defaults.dataType		? defaults.dataType : false)),
+					target : (tr.data('target')			? $(tr.data('target'))			: (defaults.target			? $(defaults.target) : $('<html>'))),
+					targetInsert : (tr.data('targetInsert')	? (tr.data('targetInsert') === 'replace' ? 'replaceWith' : tr.data('targetInsert'))	: (defaults.targetInsert ? (defaults.targetInsert === 'replace' ? 'replaceWith': defaults.targetInsert) : 'html')),
+					loadClass : (tr.data('loadClass')		? tr.data('loadClass')			: (defaults.loadClass		? defaults.loadClass : 'loading')),
+					activeClass : (tr.data('activeClass')	? tr.data('activeClass')		: (defaults.activeClass		? defaults.activeClass : 'active')),
+					activeElement : (tr.data('activeElement')	? (tr.data('activeElement') === '_parent' ? tr.parent() :$(tr.data('activeElement')))	: (defaults.activeElement ? (defaults.activeElement === '_parent' ? tr.parent() : $(defaults.activeElement)) : tr)),
+					cache : (tr.data('cache')			? tr.data('cache')				: (defaults.cache			? defaults.cache : false)),
+					complete : (tr.data('complete')		? (typeof window[tr.data('complete')] === 'function'		? window[tr.data('complete')] : callbacks.complete ) : callbacks.complete),
+					resultSelector : false
+				};
+				params.url			= (tr.data('request')		? tr.data('request')			: (defaults.request			? defaults.request : params.callback));
+				params.loadElement	= (tr.data('loadElement')	? $(tr.data('loadElement'))		: (defaults.loadElement		? ($(defaults.loadElement) ? $(defaults.loadElement) : params.target) : params.target));
 
-				switch (typeof re){
-					case 'function' : return re(this, e);
-					case 'boolean' : case 'object': return re;
+				switch (typeof params.url){
+					case 'function' : return params.url(this, e);
+					case 'boolean' : case 'object': return params.url;
 					case 'string' :
-						if(re.indexOf(' ') > -1){
-							var rp = re.split(' ');
-							re	= rp[0];
-							rq	= rp[1];
+						if(params.url.indexOf(' ') > -1){
+							var rp = params.url.split(' ');
+							params.url	= rp[0];
+							params.resultSelector	= rp[1];
 						}
 				}
-				
+				params = do_helper('params', params);
+				if(params === false){return false;}
+
 				e.preventDefault();
 				var active = (tr.data('group') ? $('._tisBound[data-group="'+tr.data('group')+'"]').each(function(){
 					var or  = $(this),
 						tel = (or.data('activeElement') ? (or.data('activeElement') === '_parent' ? or.parent() :$(or.data('activeElement'))) : (defaults.activeElement ? (defaults.activeElement === '_parent' ? tr.parent() : $(defaults.activeElement)) : or) );
-					tel.removeClass((or.data('activeClass') ? or.data('activeClass') : (defaults.activeClass ? defaults.activeClass : ac)));}
+					tel.removeClass((or.data('activeClass') ? or.data('activeClass') : (defaults.activeClass ? defaults.activeClass : params.activeClass)));}
 				) : $('._tisBound:not([data-group])').each(function(){
 					var or  = $(this),
 						tel = (or.data('activeElement') ? (or.data('activeElement') === '_parent' ? or.parent() :$(or.data('activeElement'))) : (defaults.activeElement ? (defaults.activeElement === '_parent' ? tr.parent() : $(defaults.activeElement)) : or) );
-					tel.removeClass((or.data('activeClass') ? or.data('activeClass') : (defaults.activeClass ? defaults.activeClass : ac)));}
+					tel.removeClass((or.data('activeClass') ? or.data('activeClass') : (defaults.activeClass ? defaults.activeClass : params.activeClass)));}
 				));
 				
-				ae.addClass(ac);
-				le.addClass(lc);
+				params.activeElement.addClass(params.activeClass);
+				params.loadElement.addClass(params.loadClass);
 
 				var sd = tr.serializeArray(), data;
 				if(sd.length){
@@ -128,15 +151,15 @@
 					data = $.param(tr.data());
 				}
 
-				var params = {
-						url		: re,
+				var request = {
+						url		: params.url,
 						data	: data,
-						cache	: ch,
-						type	: tp,
+						cache	: params.cache,
+						type	: params.method,
 						success	: function(dt, ts, xhr){
 
-							if(rq){
-								var tmp = $(rq, $('<html>').html(dt));
+							if(params.resultSelector){
+								var tmp = $(params.resultSelector, $('<html>').html(dt));
 								if(tmp.length === 1){
 									dt = $('<html>').html(tmp).html();
 								}else{
@@ -148,38 +171,37 @@
 								}
 							}
 							
-							dt = do_helper('filter', dt, {params: params, target: ta, text_status: ts, jqXHR: xhr});
-							
-							ta[ti](dt);
+							do_helper('filter', {data:dt, request: request, params: params});
 
 							$(triggerClass).baldrick(defaults);
 							
 							if(typeof cb === 'string'){
 								if(typeof window[cb] === 'function'){
-									return window[cb](tr,ta);
+									return window[cb](tr,params.target);
 								}
 							}else if(typeof cb === 'function'){
-								return cb(dt,{trigger:tr,target:ta},xhr);
+								return cb(dt,{trigger:tr,target:params.target},xhr);
 							}
 						},
 						complete: function(xhr,ts){
-							cp(xhr,ts);
-							le.removeClass(lc);
+							
+							do_helper('request_complete', {jqxhr:xhr, textStatus:ts, request:request, params:params});
+
 							if(tr.data('once')){
 								tr.off(ev).removeClass('_tisBound');
 							}
 						},
 						error: function(xhr,ts,ex){
-							callbacks.error(xhr,ts,ex);
+							do_helper('request_error', {jqxhr:xhr, textStatus:ts, error:ex, request:request, params:params});
 						}
 					};
-				if(rt){
-					params.dataType = rt;
+				if(params.dataType){
+					request.dataType = params.dataType;
 				}
-				params = do_helper('params', params, this);
-				if(params === false){return inst;}
+				request = do_helper('request_params', request, params);
+				if(request === false){return inst;}
 
-				return do_helper('request', params, {trigger: tr, target: ta});
+				return do_helper('request', {request: request, params: params});
 			});
 			if(el.data('autoload') || el.data('poll')){
 				if(el.data('delay')){
@@ -205,7 +227,7 @@
 				}
 			}
 			return this;
-		});
+		}));
 	};
 
 	$.fn.baldrick.registerhelper = function(helper, slug, callback){
@@ -219,6 +241,7 @@
 		}
 		
 	};
-
-	//$('.baldrick').baldrick();
+	jQuery(function($){
+		$('.baldrick').baldrick();
+	});
 })(jQuery);
