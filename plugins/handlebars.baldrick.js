@@ -104,7 +104,8 @@
 						});
 						temp.find('[data-bind]').each(function(){
 							var bind = $(this);
-							$("[data-bind='"+bind.data('bind')+"']").not(this).html(bind.html());
+							$("[data-bind='"+bind.data('bind')+"']").not(this).not('input').html(bind.html());
+							$("input[data-bind='"+bind.data('bind')+"']").not(this).val(bind.html());
 						});
 						
 						opts.data = template;
