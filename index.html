@@ -68,7 +68,7 @@
 
 	<script type="text/html" id="userlist-template">
 	{{#each users}}
-	<li><a href="#" class="baldrick" data-request="users.json users[{{@index}}]" data-bind="users[{{@index}}].name" data-target="#user-profile" data-template="#profile-template">{{name}}</a></li>
+	<li><a href="#" class="baldrick" data-active-element="_parent" data-request="users.json users[{{@index}}]" data-bind="users[{{@index}}].name" data-target="#user-profile" data-template="#profile-template">{{name}}</a></li>
 	{{/each}}
 	</script>
 	<script type="text/html" id="profile-template">
