@@ -30,7 +30,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</a>
-				<a class="brand" href="../">BaldrickJS Modal Plugin</a>
+				<a class="brand" href="../">BaldrickJS Tests</a>
 			</div>
 		</div>
 	</div>
@@ -39,6 +39,7 @@
 
 
 	<section id="modals">
+		<h4 class="page-header">Modal Tests</h4>
 		<a class="btn baldrick" data-modal="true" data-modal-animate="true" data-request="demo.html">Plain Modal</a>
 		<a class="btn baldrick" data-modal="true" data-template="#template-demo-1" data-request="demo.json">Modal</a>
 		<a class="btn baldrick" data-modal="true" data-template="#template-demo-2" data-request="demo.json" data-modal-title="Modal With Title">Baldrick Modal + Title</a>
@@ -49,12 +50,44 @@
 
 	</section>
 
-	<section id="contents">
-		<p>Modal plugin test page.</p>
+	
+	
+	<section id="databind">
+		<h4 class="page-header">Data Binding Test</h4>
+		<div class="row-fluid">
+			<div class="span2">
+				<div><button class="btn baldrick" data-bind="users" data-target="#userlist" data-request="users.json" data-template="#userlist-template">Get Users</button></div>
+				<hr>
+				<ul id="userlist" class="nav nav-tabs nav-stacked"></ul>
+			</div>
+			<div class="span8" id="user-profile">
+			</div>
+		</div>
 
 	</section>
 
-
+	<script type="text/html" id="userlist-template">
+	{{#each users}}
+	<li><a href="#" class="baldrick" data-request="users.json users[{{@index}}]" data-bind="users[{{@index}}].name" data-target="#user-profile" data-template="#profile-template">{{name}}</a></li>
+	{{/each}}
+	</script>
+	<script type="text/html" id="profile-template">
+	<input type="text" name="name" value="{{name}}" data-bind="{{_bindContext}}.name" class="input-block-level" style="font-size: 24px; height: 36px;">
+	<table class="table">
+		<tr>
+			<th>UserID</th>
+			<td data-bind="{{_bindContext}}.userid">{{userid}}</td>
+		</tr>
+		<tr>
+			<th>Name</th>
+			<td data-bind="{{_bindContext}}.name">{{name}}</td>
+		</tr>
+		<tr>
+			<th>Age</th>
+			<td data-bind="{{_bindContext}}.age">{{age}}</td>
+		</tr>
+	</table>
+	</script>
 
 
 

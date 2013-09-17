@@ -1,5 +1,8 @@
 /* Baldrick handlebars.js templating plugin */
 (function($){
+
+	var dataBoundGroups = {};
+
 	$.fn.hbSerializeObject = function(){
 
 		var self = this,
@@ -81,8 +84,45 @@
 					}
 					opts.params.target = false;
 				}else{
+					//data-bind="users"
+					if(opts.params.trigger.data('bind')){
+						Handlebars.registerHelper('_bindContext', function(context, options) {
+							var bindContext = opts.params.trigger.data('bind').split('.');
+							if(bindContext.length > 1){
+								bindContext.pop();
+								bindContext = bindContext.join('.');
+							}
+							return bindContext;
+						});
+
+						var traverse = opts.params.trigger.data('bind').replace(/\[/g,'.').replace(/\]/g,'').split('.'),
+							tmp = {},
+							run = dataBoundGroups;
+
+						for(var i=0; i<traverse.length; i++){
+							if(traverse[i].match(/[0-9]+/g)){
+							//	traverse[i] = parseFloat(traverse[i]);
+							}
+							//run = run[traverse[i]];
+							//console.log(run);
+							//console.log(run[traverse[i]]);
+
+						}
+						//tmp = $.extend(true, opts.data[traverse[i]]);
+
+						//console.log(opts.params.trigger.data('bind'));
+						//console.log(tmp);
+						dataBoundGroups = opts.data;//run;//$.extend(true, dataBoundGroups, run);
+
+					}
 					if(typeof opts.params.template === 'function'){
-						opts.data = opts.params.template(opts.data);
+						var template = $($.trim(opts.params.template(opts.data)));
+						var temp = $('<div>').html(template);
+						temp.find('input[data-bind]').on('keypress', function(){
+							$("[data-bind='"+$(this).data('bind')+"']").not(this).html(this.value);
+						});
+						
+						opts.data = template;
 					}
 				}
 				return opts;
@@ -90,7 +130,7 @@
 		},
 		request				: {
 			compiletemplate	: function(opts){
-
+				//console.log(dataBoundGroups);
 				var trigger	= opts.params.trigger,
 					reqobj	= this,
 					tml;

@@ -1,0 +1,34 @@
+{
+  "users": [
+  	{
+  		"userid"	: 2345,
+  		"name"		: "David Cramer",
+  		"age"		: 34
+  	},
+  	{
+  		"userid"	: 8723,
+  		"name"		: "Rory McGuire",
+  		"age"		: 32
+  	},
+  	{
+  		"userid"	: 2372,
+  		"name" : "Sarah Cramer",
+  		"age"		: 34
+  	},
+  	{
+  		"userid"	: 7655,
+  		"name" : "Michael Cramer",
+  		"age"		: 30
+  	},
+  	{
+  		"userid"	: 1123,
+  		"name" : "John Malone",
+  		"age"		: 38
+  	},
+  	{
+  		"userid"	: 9323,
+  		"name" : "Alfed Mac",
+  		"age"		: 41
+  	}
+  ]
+}
