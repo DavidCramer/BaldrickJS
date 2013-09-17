@@ -12,6 +12,14 @@
 			_totarget	: function(opts){
 				if(opts.params.target){
 					opts.params.target[opts.params.targetInsert](opts.data);
+
+					if(typeof opts.params.callback === 'string'){
+						if(typeof window[opts.params.callback] === 'function'){
+							return window[opts.params.callback](opts);
+						}
+					}else if(typeof opts.params.callback === 'function'){
+						return opts.params.callback(opts);
+					}
 				}
 			}
 		},
@@ -28,7 +36,7 @@
 		},
 		request_error	: {
 			_doerror	: function(opts){
-				opts.params.complete(xhr,ts);
+				opts.params.complete(opts.jqxhr,opts.textStatus);
 			}
 		},
 		refresh	: {
@@ -48,7 +56,7 @@
 			ncb				= function(){return true;},
 			callbacks		= {
 				"before"	: ncb,
-				"callback"	: ncb,
+				"callback"	: false,
 				"complete"	: ncb,
 				"error"		: ncb
 			},
@@ -80,9 +88,13 @@
 
 		inst = do_helper('bind', inst);
 		if(inst === false){return this;}
-		return do_helper('ready', inst.each(function(){
+		return do_helper('ready', inst.each(function(key){
+			if(!this.id){
+				this.id = "baldrick_trigger_" + (new Date().getTime() + key);
+			}
 			var el = $(this), ev = (el.data('event') ? el.data('event') : (defaults.event ? defaults.event : ( el.is('form') ? 'submit' : 'click' )));
 			el.on(ev, function(e){
+
 				var tr = $(do_helper('event', this, e));
 
 				if(tr.data('for')){
@@ -118,9 +130,13 @@
 				params.url			= (tr.data('request')		? tr.data('request')			: (defaults.request			? defaults.request : params.callback));
 				params.loadElement	= (tr.data('loadElement')	? $(tr.data('loadElement'))		: (defaults.loadElement		? ($(defaults.loadElement) ? $(defaults.loadElement) : params.target) : params.target));
 
+				params = do_helper('params', params);
+				if(params === false){return false;}
+
 				switch (typeof params.url){
 					case 'function' : return params.url(this, e);
-					case 'boolean' : case 'object': return params.url;
+					case 'boolean' :
+					case 'object': return;
 					case 'string' :
 						if(params.url.indexOf(' ') > -1){
 							var rp = params.url.split(' ');
@@ -128,8 +144,6 @@
 							params.resultSelector	= rp[1];
 						}
 				}
-				params = do_helper('params', params);
-				if(params === false){return false;}
 
 				e.preventDefault();
 				var active = (tr.data('group') ? $('._tisBound[data-group="'+tr.data('group')+'"]').each(function(){
@@ -150,10 +164,20 @@
 					var arr = [];
 					$.each( tr.data(), function(k,v) {
 						arr.push({name:k, value:v});
+						if(k.indexOf('field')>-1){
+							tmp.push({name: k.substr(5).toLowerCase(), value: v});
+						}
 					});
 					data = $.extend(arr,sd);
 				}else{
-					data = $.param(tr.data());
+					var tmp = [];
+					$.each( tr.data(), function(k,v) {
+						tmp.push({name: k, value:v});
+						if(k.indexOf('field')>-1){
+							tmp.push({name: k.substr(5).toLowerCase(), value: v});
+						}
+					});
+					data = $.param(tmp);
 				}
 
 				var request = {
@@ -164,27 +188,28 @@
 						success	: function(dt, ts, xhr){
 
 							if(params.resultSelector){
-								var tmp = $(params.resultSelector, $('<html>').html(dt));
-								if(tmp.length === 1){
-									dt = $('<html>').html(tmp).html();
-								}else{
-									dt = $('<html>');
-									tmp.each(function(){
-										dt.append(this);
-									});
-									dt = dt.html();
+								if(typeof dt === 'object'){
+									var traverse = params.resultSelector.replace(/\[/g,'.').replace(/\]/g,'').split('.'),
+										data_object = dt;
+									for(var i=0; i<traverse.length; i++){
+										data_object = data_object[traverse[i]];
+									}
+									dt = data_object;
+								}else if (typeof dt === 'string'){
+									var tmp = $(params.resultSelector, $('<html>').html(dt));
+									if(tmp.length === 1){
+										dt = $('<html>').html(tmp).html();
+									}else{
+										dt = $('<html>');
+										tmp.each(function(){
+											dt.append(this);
+										});
+										dt = dt.html();
+									}
 								}
 							}
-							
-							do_helper('filter', {data:dt, request: request, params: params});
-
-							if(typeof cb === 'string'){
-								if(typeof window[cb] === 'function'){
-									return window[cb](tr,params.target);
-								}
-							}else if(typeof cb === 'function'){
-								return cb(dt,{trigger:tr,target:params.target},xhr);
-							}
+							var rawdata = dt;
+							do_helper('filter', {data:dt, rawData: rawdata, request: request, params: params});
 						},
 						complete: function(xhr,ts){
 							
