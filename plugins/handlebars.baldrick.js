@@ -118,7 +118,7 @@
 					if(typeof opts.params.template === 'function'){
 						var template = $($.trim(opts.params.template(opts.data)));
 						var temp = $('<div>').html(template);
-						temp.find('input[data-bind]').on('keypress', function(){
+						temp.find('input[data-bind]').on('keyup', function(){
 							$("[data-bind='"+$(this).data('bind')+"']").not(this).html(this.value);
 						});
 						
