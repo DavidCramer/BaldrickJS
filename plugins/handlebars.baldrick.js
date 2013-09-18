@@ -94,32 +94,18 @@
 							}
 							return bindContext;
 						});
-
-						var traverse = opts.params.trigger.data('bind').replace(/\[/g,'.').replace(/\]/g,'').split('.'),
-							tmp = {},
-							run = dataBoundGroups;
-
-						for(var i=0; i<traverse.length; i++){
-							if(traverse[i].match(/[0-9]+/g)){
-							//	traverse[i] = parseFloat(traverse[i]);
-							}
-							//run = run[traverse[i]];
-							//console.log(run);
-							//console.log(run[traverse[i]]);
-
-						}
-						//tmp = $.extend(true, opts.data[traverse[i]]);
-
-						//console.log(opts.params.trigger.data('bind'));
-						//console.log(tmp);
-						dataBoundGroups = opts.data;//run;//$.extend(true, dataBoundGroups, run);
-
 					}
 					if(typeof opts.params.template === 'function'){
 						var template = $($.trim(opts.params.template(opts.data)));
 						var temp = $('<div>').html(template);
-						temp.find('input[data-bind]').on('keypress', function(){
-							$("[data-bind='"+$(this).data('bind')+"']").not(this).html(this.value);
+						temp.find('input[data-bind]').on('keyup', function(){
+							var bind = $(this);
+							$("[data-bind='"+bind.data('bind')+"']").not(this).html(bind.val());
+						});
+						temp.find('[data-bind]').each(function(){
+							var bind = $(this);
+							$("[data-bind='"+bind.data('bind')+"']").not(this).not('input').html(bind.html());
+							$("input[data-bind='"+bind.data('bind')+"']").not(this).val(bind.html());
 						});
 						
 						opts.data = template;
