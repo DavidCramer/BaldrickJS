@@ -16,7 +16,6 @@
 				"named":    /^[a-zA-Z0-9_]+$/
 			};
 
-
 		this.build = function(base, key, value){
 			base[key] = value;
 			return base;
@@ -70,6 +69,7 @@
 	$.fn.baldrick.registerhelper({
 		request_params		: {
 			checkjason		: function(request, defaults, params){
+			//	console.log(request);
 				if((params.trigger.data('templateUrl') || params.trigger.data('template')) && typeof Handlebars === 'object'){
 					request.dataType = 'json';
 					return request;
@@ -86,6 +86,9 @@
 				}else{
 					//data-bind="users"
 					if(opts.params.trigger.data('bind')){
+						if(opts.params.trigger.data('bind').split('.').length === 1){
+							dataBoundGroups[opts.params.trigger.data('bind').split('.')[0]] = opts.data;
+						}
 						Handlebars.registerHelper('_bindContext', function(context, options) {
 							var bindContext = opts.params.trigger.data('bind').split('.');
 							if(bindContext.length > 1){
@@ -115,8 +118,7 @@
 			}
 		},
 		request				: {
-			compiletemplate	: function(opts){
-				//console.log(dataBoundGroups);
+			compiletemplate	: function(opts, defaults){
 				var trigger	= opts.params.trigger,
 					reqobj	= this,
 					tml;
@@ -167,6 +169,28 @@
 					if(trigger.data('template') && typeof Handlebars === 'object'){
 						tml = $(trigger.data('template')).html();
 						opts.params.template = Handlebars.compile(tml);
+
+						if(trigger.data('bind') && opts.params.url === '#'){
+							var bindpath = trigger.data('bind').replace(/\[/g,'.').replace(/\]/g,'').split('.');
+							if(typeof dataBoundGroups[bindpath[0]] !== 'undefined'){
+								var cacheSet = dataBoundGroups[bindpath[0]];
+								if(bindpath.length > 1){
+									for(c=1;c<bindpath.length; c++){
+										console.log(cacheSet[bindpath[c]]);
+										cacheSet = cacheSet[bindpath[c]];
+									}
+								}
+
+								var cache = {data:cacheSet, rawData: cacheSet, request: opts.request, params: opts.params};
+
+								cache.cacheSet = defaults.helpers.filter.dotemplate(cache);
+								defaults.helpers.filter._totarget(cache);
+								opts.params.loadElement.removeClass(opts.params.loadClass);
+								return false;
+								//console.log(cacheSet);
+							}
+						}
+
 						return opts;
 					}
 				}
