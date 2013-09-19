@@ -37,14 +37,15 @@
 				$('#baldrickModalBody').show();
 			}
 		},
-		event	: {
-			checkModal : function(element,defaults, e){
-				var trigger = $(element);
-				if(trigger.data('modal') && (trigger.data('request') || trigger.data('modalContent'))){
+		params	: {
+			checkModal : function(params,defaults){
+
+				var trigger = params.trigger;
+				if(trigger.data('modal') && (params.url || trigger.data('modalContent'))){
 					var modal;
-					if(trigger.data('request')){
-						trigger.data('target', '#baldrickModalBody');
-						trigger.data('loadElement', '#baldrickModalLoader');
+					if(params.url){
+						params.target = $('#baldrickModalBody');
+						params.loadElement = $('#baldrickModalLoader');
 					}
 
 					if(trigger.data('modalTemplate')){
@@ -109,6 +110,7 @@
 						$(defaults.triggerClass).baldrick(defaults);
 					}
 					// launch
+					console.log(modal);
 					modal.modal('show');
 				}
 			}
