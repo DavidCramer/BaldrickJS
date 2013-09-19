@@ -55,8 +55,10 @@
 	<section id="databind">
 		<h4 class="page-header">Data Binding Test</h4>
 		<div class="row-fluid">
-			<div class="span2">
-				<div><button class="btn baldrick" data-bind="users" data-target="#userlist" data-request="users.json" data-template="#userlist-template">Get Users</button></div>
+			<div class="span4">
+				<form class="form-inline baldrick" data-bind="videos" data-target="#userlist" name="q" data-request="http://gdata.youtube.com/feeds/api/videos?v=2&alt=json"  data-template="#userlist-template">
+					<input type="text" name="q"> <button class="btn">Search</button>
+				</form>
 				<hr>
 				<ul id="userlist" class="nav nav-tabs nav-stacked"></ul>
 			</div>
@@ -67,26 +69,15 @@
 	</section>
 
 	<script type="text/html" id="userlist-template">
-	{{#each users}}
-	<li><a href="#" class="baldrick" data-active-element="_parent" data-request="users.json users[{{@index}}]" data-bind="users[{{@index}}].name" data-target="#user-profile" data-template="#profile-template">{{name}}</a></li>
+	{{#each feed.entry}}
+	<li>
+		<a href="#" class="baldrick" data-active-element="_parent" data-bind="videos.feed.entry[{{@index}}]" data-target="#user-profile" data-template="#profile-template">{{title.$t}}</a>
+	</li>
 	{{/each}}
 	</script>
 	<script type="text/html" id="profile-template">
-	<input type="text" name="name" value="{{name}}" data-bind="{{_bindContext}}.name" class="input-block-level" style="font-size: 24px; height: 36px;">
-	<table class="table">
-		<tr>
-			<th>UserID</th>
-			<td data-bind="{{_bindContext}}.userid">{{userid}}</td>
-		</tr>
-		<tr>
-			<th>Name</th>
-			<td data-bind="{{_bindContext}}.name">{{name}}</td>
-		</tr>
-		<tr>
-			<th>Age</th>
-			<td data-bind="{{_bindContext}}.age">{{age}}</td>
-		</tr>
-	</table>
+	<h3 class="page-header">{{title.$t}}</h3>
+	<iframe width="560" height="315" src="{{content.src}}" frameborder="0" allowfullscreen></iframe>
 	</script>
 
 
