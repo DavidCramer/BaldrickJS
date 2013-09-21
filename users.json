@@ -1,58 +1,27 @@
 {
-  "users": [
+  "users": 
+  {
+    "user_2345" :
   	{
   		"userid"	: 2345,
   		"name"		: "David Cramer",
   		"age"     : 34,
       "groups"  : [
-        "admin",
-        "user"
+        1,
+        4,
+        3,
+        6
       ]
   	},
-  	{
-  		"userid"	: 8723,
-  		"name"		: "Rory McGuire",
-  		"age"		: 32,
-      "groups"  : [
-        "admin",
-        "user"
-      ]
-  	},
-  	{
-  		"userid"	: 2372,
-  		"name" : "Sarah Cramer",
-  		"age"		: 34,
-      "groups"  : [
-        "admin",
-        "user"
-      ]
-  	},
-  	{
-  		"userid"	: 7655,
-  		"name" : "Michael Cramer",
-  		"age"		: 30,
-      "groups"  : [
-        "admin",
-        "user"
-      ]
-  	},
+    "user_1123" :
   	{
   		"userid"	: 1123,
   		"name" : "John Malone",
   		"age"		: 38,
       "groups"  : [
-        "admin",
-        "user"
-      ]
-  	},
-  	{
-  		"userid"	: 9323,
-  		"name" : "Alfed Mac",
-  		"age"		: 41,
-      "groups"  : [
-        "admin",
-        "user"
+        1,
+        2
       ]
   	}
-  ]
+  }
 }

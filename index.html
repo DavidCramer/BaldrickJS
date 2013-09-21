@@ -51,16 +51,14 @@
 	</section>
 
 	
-	
 	<section id="databind">
-		<h4 class="page-header">Data Binding Test</h4>
+		<h4 class="page-header">Data Binding Test - users</h4>
 		<div class="row-fluid">
 			<div class="span4">
-				<form class="form-inline baldrick" data-bind="videos" data-target="#userlist" name="q" data-request="http://gdata.youtube.com/feeds/api/videos?v=2&alt=json"  data-template="#userlist-template">
-					<input type="text" name="q"> <button class="btn">Search</button>
-				</form>
-				<hr>
-				<ul id="userlist" class="nav nav-tabs nav-stacked"></ul>
+				<span class="baldrick" data-load-class="updating" data-bind="groups" data-group="loaders" data-request="groups.json" data-poll="1000" data-template="#userlist-template"></span>
+				<span class="baldrick" data-poll="1000" data-load-class="updating" data-bind="userlist" data-target="#userlist" data-group="loaders" data-request="users.json" data-template="#userlist-template"></span>
+				<!-- <div class="btn baldrick" data-group="loader" data-bind="userlist" data-target="#userlist" data-request="users.json" data-template="#userlist-template">Get Users</div> -->
+				<ul class="nav nav-tabs nav-stacked" id="userlist"></ul>
 			</div>
 			<div class="span8" id="user-profile">
 			</div>
@@ -69,14 +67,82 @@
 	</section>
 
 	<script type="text/html" id="userlist-template">
-	{{#each feed.entry}}
-	<li>
-		<a href="#" class="baldrick" data-active-element="_parent" data-bind="videos.feed.entry[{{@index}}]" data-target="#user-profile" data-template="#profile-template">{{title.$t}}</a>
+	{{#each users}}
+	<li data-bind="{{_bindContext}}.users.{{@key}}">
+		<a href="#" class="baldrick" data-active-element="_parent" data-request="{{userid}}.json" data-bind="{{_bindContext}}.users.{{@key}}" data-target="#user-profile" data-template="#userprofile-template">
+			<span data-bind="{{_bindContext}}.users.{{@key}}.name">{{name}}</span>
+			{{#each groups}}
+			<div>- <span data-bind="groups.group{{this}}.name"></span></div>
+			{{/each}}
+
+		</a>
 	</li>
 	{{/each}}
 	</script>
-	<script type="text/html" id="profile-template">
+	<script type="text/html" id="userprofile-template">
+	<dl class="dl-horizontal" data-bind="{{_bindContext}}">
+		<dt>UserID</dt>
+		<dd>{{userid}}</dd>
+		<dt>Name</dt>
+		<dd data-bind="{{_bindContext}}.name">{{name}}</dd>
+		<dt>Age</dt>
+		<dd>{{age}}</dd>
+		<dt>Context</dt>
+		<dd>{{_bindContext}}</dd>
+	</dl>
+	</script>
+
+
+
+	<section id="databind">
+		<h4 class="page-header">Data Binding Test - youtube</h4>
+		<div class="row-fluid">
+			<div class="span4">
+				<form class="form-inline baldrick" data-bind="videos" data-target="#videolist" name="q" data-request="http://gdata.youtube.com/feeds/api/videos?v=2&alt=json&max-results=5"  data-template="#videolist-template">
+					<input type="text" name="q"> <button class="btn">Search</button>
+				</form>
+				<hr>
+				<ul id="videolist" class="nav nav-tabs nav-stacked"></ul>
+			</div>
+			<div class="span8" id="video-detail">
+			</div>
+		</div>
+
+	</section>
+
+
+	<script type="text/html" id="videolist-template">
+	{{#each feed.entry}}
+	<li>
+		<a href="#" class="baldrick" data-active-element="_parent" data-bind="{{_bindContext}}.feed.entry[{{@index}}]" data-target="#video-detail" data-template="#video-details-template">
+			{{title.$t}}
+		</a>
+	</li>
+	{{/each}}
+	</script>
+	<script type="text/html" id="video-details-template">
+	<dl class="dl-horizontal">
+		<dt>Title</dt>
+		<dd data-bind="{{_bindContext}}.title.$t">{{title.$t}}</dd>
+		<dt>Author</dt>
+		{{#each author}}
+		<dd data-bind="{{_bindContext}}.author[{{@index}}].name.$t">{{name.$t}}</dd>
+		{{/each}}
+		<dt>Likes</dt>
+		<dd data-bind="{{_bindContext}}.yt$rating.numLikes">{{yt$rating.numLikes}}</dd>
+		<dt>Dislikes</dt>
+		<dd data-bind="{{_bindContext}}.yt$rating.numDislikes">{{yt$rating.numDislikes}}</dd>
+
+		<dt>Context</dt>
+		<dd>{{_bindContext}}</dd>
+
+	</dl>
+	<iframe width="560" height="315" src="{{content.src}}" frameborder="0" allowfullscreen></iframe>
+	</script>
+
+	<script type="text/html" id="viewvideo-template">
 	<h3 class="page-header">{{title.$t}}</h3>
+	<h4>{{_bindContext}}</h4>
 	<iframe width="560" height="315" src="{{content.src}}" frameborder="0" allowfullscreen></iframe>
 	</script>
 

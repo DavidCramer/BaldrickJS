@@ -1,5 +1,9 @@
 {
 	"userid"	: 2372,
 	"name" : "Sarah Cramer",
-	"age"		: 34
+	"age"		: 34,
+	"groups"  : [
+		"admin",
+		"user"
+	]
 }
