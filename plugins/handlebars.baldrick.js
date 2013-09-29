@@ -69,44 +69,11 @@
 	$.fn.baldrick.registerhelper({
 		request_params		: {
 			checkjason		: function(request, defaults, params){
+			//	console.log(request);
 				if((params.trigger.data('templateUrl') || params.trigger.data('template')) && typeof Handlebars === 'object'){
 					request.dataType = 'json';
 					return request;
 				}
-			}
-		},
-		refresh				: {
-			updatebindings	: function(opts){
-				//console.log(opts.params.trigger.data('bind'));
-				$('[data-bind]').each(function(){
-					var bind = $(this).data('bind'),
-						data_object = dataBoundGroups[bind.split('.')[0]],
-						traverse = bind.replace(/\[/g,'.').replace(/\]/g,'').split('.'),
-						traverseBindings = function(context_object, bind_context){
-							$.each(context_object, function(k,v){
-
-								k = (typeof k === 'number' ? "["+k+"]" : "."+k);
-
-								if(typeof v === 'object'){
-									var level_up = bind_context+k;
-									traverseBindings(v, level_up);
-								}else if(typeof v === 'string'){
-									$("[data-bind='"+bind_context+k+"']").not(this).not('input').html(v);
-								}
-							});
-						};
-						for(var i=1; i<traverse.length; i++){
-							if(data_object[traverse[i]]){
-								data_object = data_object[traverse[i]];
-								//console.log(data_object);
-							}
-						}
-						if(typeof data_object === 'string'){
-							$("[data-bind='"+bind+"']").not(this).not('input').html(data_object);
-						}else if(typeof data_object === 'object'){
-							traverseBindings(data_object, bind);
-						}
-				});
 			}
 		},
 		filter				: {
@@ -118,98 +85,33 @@
 					opts.params.target = false;
 				}else{
 					//data-bind="users"
-					var source = false;
 					if(opts.params.trigger.data('bind')){
 						if(opts.params.trigger.data('bind').split('.').length === 1){
 							dataBoundGroups[opts.params.trigger.data('bind').split('.')[0]] = opts.data;
-							source = true;
 						}
-
 						Handlebars.registerHelper('_bindContext', function(context, options) {
-							return opts.params.trigger.data('bind');
+							var bindContext = opts.params.trigger.data('bind').split('.');
+							if(bindContext.length > 1){
+								bindContext.pop();
+								bindContext = bindContext.join('.');
+							}
+							return bindContext;
 						});
 					}
-
 					if(typeof opts.params.template === 'function'){
-						var temp = $('<div>').html($($.trim(opts.params.template(opts.data)))),
-
-							mergeTemplate = function(target, template){
-								var targetChildren = target.children(),
-									templateChildren = template.children();
-
-								targetChildren.each(function(k,v){
-									if(!templateChildren[k]){
-										var targetChild = $(targetChildren[k]);
-										if(targetChild.data('bind')){
-											$('[data-bind^="'+targetChild.data('bind')+'"]').remove();
-										}
-										targetChildren[k].remove();
-									}
-								});
-								templateChildren.each(function(k,v){
-									
-									var targetChild = $(targetChildren[k]),
-										templateChild = $(v);
-									
-									if(!targetChildren[k]){
-										target.append(v);
-									}else{
-
-										if(targetChild.data('bind') !== templateChild.data('bind')){
-											targetChild.replaceWith(templateChild);
-										}
-									}
-
-									if(targetChild.children().length > 0){
-										mergeTemplate(targetChild, templateChild);
-									}
-
-								});
-							},
-							traverseBindings = function(context_object, bind_context){
-								$.each(context_object, function(k,v){
-
-									k = (typeof k === 'number' ? "["+k+"]" : "."+k);
-
-									if(typeof v === 'object'){
-										var level_up = bind_context+k;
-										traverseBindings(v, level_up);
-									}else if(typeof v === 'string'){
-										$("[data-bind='"+bind_context+k+"']").not(this).not('input').html(v);
-									}
-									
-									//$("input[data-bind='"+bind.data('bind')+"']").not(this).val(bind.html());
-								});
-							};
-						//var test = $.extend(true, opts.params.target.contents(), temp.contents());
-
+						var template = $($.trim(opts.params.template(opts.data)));
+						var temp = $('<div>').html(template);
 						temp.find('input[data-bind]').on('keyup', function(){
 							var bind = $(this);
-							//$("[data-bind='"+bind.data('bind')+"']").not(this).html(bind.val());
+							$("[data-bind='"+bind.data('bind')+"']").not(this).html(bind.val());
 						});
-
-						/*temp.find('[data-bind]').each(function(){
-							var bind = $(this).data('bind'),
-								context = bind.replace(opts.params.trigger.data('bind')+'.', ''),
-								data_object = ((typeof dataBoundGroups[bind.split('.')[0]] !== 'undefined' && opts.params.trigger.data('bind') !== bind.split('.')[0]) ? dataBoundGroups[bind.split('.')[0]] : opts.data),
-								traverse = context.replace(/\[/g,'.').replace(/\]/g,'').split('.');
-
-								for(var i=0; i<traverse.length; i++){
-									if(data_object[traverse[i]]){
-										data_object = data_object[traverse[i]];
-										//console.log(data_object);
-									}
-								}
-								if(typeof data_object === 'string'){
-									$("[data-bind='"+bind+"']").not(this).not('input').html(data_object);
-								}else if(typeof data_object === 'object'){
-									traverseBindings(data_object, bind);
-								}
-
-						});*/
-						//traverseBindings(opts.data, opts.params.trigger.data('bind'));
-						mergeTemplate(opts.params.target, temp);
-						delete opts.params.target;
+						temp.find('[data-bind]').each(function(){
+							var bind = $(this);
+							$("[data-bind='"+bind.data('bind')+"']").not(this).not('input').html(bind.html());
+							$("input[data-bind='"+bind.data('bind')+"']").not(this).val(bind.html());
+						});
+						
+						opts.data = template;
 					}
 				}
 				return opts;
@@ -268,24 +170,24 @@
 						tml = $(trigger.data('template')).html();
 						opts.params.template = Handlebars.compile(tml);
 
-						if(trigger.data('bind')){
+						if(trigger.data('bind') && opts.params.url === '#'){
 							var bindpath = trigger.data('bind').replace(/\[/g,'.').replace(/\]/g,'').split('.');
 							if(typeof dataBoundGroups[bindpath[0]] !== 'undefined'){
-
+								var cacheSet = dataBoundGroups[bindpath[0]];
 								if(bindpath.length > 1){
-									var cacheSet = dataBoundGroups[bindpath[0]];
-
 									for(c=1;c<bindpath.length; c++){
+										console.log(cacheSet[bindpath[c]]);
 										cacheSet = cacheSet[bindpath[c]];
 									}
-
-									var cache = {data:cacheSet, rawData: cacheSet, request: opts.request, params: opts.params};
-
-									cache.cacheSet = defaults.helpers.filter.dotemplate(cache);
-									defaults.helpers.filter._totarget(cache);
-									opts.params.loadElement.removeClass(opts.params.loadClass);
-									return false;
 								}
+
+								var cache = {data:cacheSet, rawData: cacheSet, request: opts.request, params: opts.params};
+
+								cache.cacheSet = defaults.helpers.filter.dotemplate(cache);
+								defaults.helpers.filter._totarget(cache);
+								opts.params.loadElement.removeClass(opts.params.loadClass);
+								return false;
+								//console.log(cacheSet);
 							}
 						}
 
