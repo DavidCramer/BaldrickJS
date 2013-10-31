@@ -1,7 +1,8 @@
 /* BaldrickJS  V2.01 | (C) David Cramer - 2013 | MIT License */
 (function($){
 
-	var baldrickhelpers = {
+	var baldrickCache = {},
+		baldrickhelpers = {
 		bind			: {},
 		event			: {
 			_event		: function(el,e){
@@ -25,12 +26,18 @@
 		},
 		request			: {
 			_dorequest	: function(opts){
+				
+				if(opts.request.url.indexOf('#_cache_') > -1){
+					if(typeof baldrickCache[opts.request.url.split('#_cache_')[1]] === 'object'){
+						return {data: baldrickCache[opts.request.url.split('#_cache_')[1]]};
+					}
+				}
 				return $.ajax(opts.request);
 			}
 		},
 		request_complete: {
 			_docomplete	: function(opts){
-				opts.params.complete(opts.jqxhr,opts.textStatus);
+				opts.params.complete(opts);
 				opts.params.loadElement.removeClass(opts.params.loadClass);
 			}
 		},
@@ -100,7 +107,7 @@
 				if(tr.data('for')){
 					var fort		= $(tr.data('for')),
 						datamerge	= $.extend({}, tr.data());
-						delete datamerge.for;
+						delete datamerge['for'];
 					fort.data(datamerge);
 					return fort.trigger((fort.data('event') ? fort.data('event') : ev));
 				}
@@ -231,7 +238,17 @@
 				request = do_helper('request_params', request, params);
 				if(request === false){return inst;}
 
-				return do_helper('request', {request: request, params: params});
+				var request_result = do_helper('request', {request: request, params: params});
+				if(request_result.data){
+					var dt		= request_result.data,
+						rawdata = dt;
+
+					do_helper('filter'			, {data:dt, rawData: rawdata, request: request, params: params});
+					do_helper('request_complete', {jqxhr:false, textStatus:true, request:request, params:params});
+					do_helper('refresh'			, {jqxhr:false, textStatus:true, request:request, params:params});
+
+					//console.log(request_result.data);
+				}
 			});
 			if(el.data('autoload') || el.data('poll')){
 				if(el.data('delay')){
@@ -259,7 +276,9 @@
 			return this;
 		}));
 	};
-
+	$.fn.baldrick.cacheObject = function(id, object){
+		baldrickCache[id] = object;
+	};
 	$.fn.baldrick.registerhelper = function(helper, slug, callback){
 		if(typeof helper === 'object'){
 			baldrickhelpers = $.extend(true, helper, baldrickhelpers);

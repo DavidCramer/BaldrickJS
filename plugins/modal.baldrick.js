@@ -15,18 +15,18 @@
 							tabIndex			: -1,
 							"ariaLabelled-by"	: "baldrickModalLable",
 							"aria-hidden"		: true,
-							class				: "modal hide"
+							"class"				: "modal hide"
 						}),
-						titleWrap = $('<div>', {class : "modal-header"});
+						titleWrap = $('<div>', {"class" : "modal-header"});
 
 					titleWrap.
-					append($('<button>', { type:"button", class:"close", "data-dismiss":"modal", "aria-hidden":"true"}).html('×')).
+					append($('<button>', { type:"button", "class":"close", "data-dismiss":"modal", "aria-hidden":"true"}).html('×')).
 					append($('<h3>', {id:"baldrickModalLable"})).
 					appendTo(modal);
 
-					modal.append($('<div>', {class:"modal-body", id: 'baldrickModalLoader'})).
-					append($('<div>', {class:"modal-body", id: 'baldrickModalBody'})).
-					append($('<div>', {class:"modal-footer", id: "baldrickModalFooter"}));
+					modal.append($('<div>', {"class":"modal-body", id: 'baldrickModalLoader'})).
+					append($('<div>', {"class":"modal-body", id: 'baldrickModalBody'})).
+					append($('<div>', {"class":"modal-footer", id: "baldrickModalFooter"}));
 					modal.appendTo($('body'));
 				}
 			}
@@ -85,7 +85,7 @@
 								var options		= buttons[b].split('|'),
 									buttonLabel	= options[0],
 									callback	= options[1],
-									atts		= {class:'btn'},
+									atts		= {"class":'btn'},
 									button		= $('<button>', atts);
 
 									if(callback === 'dismiss'){
