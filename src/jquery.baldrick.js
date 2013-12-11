@@ -106,7 +106,7 @@
 
 				if(tr.data('for')){
 					var fort		= $(tr.data('for')),
-						datamerge	= $.extend({}, tr.data());
+						datamerge	= $.extend({}, fort.data(), tr.data());
 						delete datamerge['for'];
 					fort.data(datamerge);
 					return fort.trigger((fort.data('event') ? fort.data('event') : ev));
@@ -115,7 +115,11 @@
 					tr.data('request', tr.attr('action'));
 				}
 				if(tr.is('a') && !tr.data('request') && tr.attr('href')){
-					tr.data('request', tr.attr('href'));
+					if(tr.attr('href').indexOf('#') < 0){
+						tr.data('request', tr.attr('href'));
+					}else{
+						tr.data('href', tr.attr('href'));
+					}
 				}
 
 				if((tr.data('before') ? (typeof window[tr.data('before')] === 'function' ? window[tr.data('before')](this, e) : callbacks.before(this, e)) : callbacks.before(this, e)) === false){return;}
@@ -166,27 +170,26 @@
 				params.activeElement.addClass(params.activeClass);
 				params.loadElement.addClass(params.loadClass);
 
-				var sd = tr.serializeArray(), data;
-				if(sd.length){
-					var arr = [];
-					$.each( tr.data(), function(k,v) {
-						arr.push({name:k, value:v});
-						if(k.indexOf('field')>-1){
-							tmp.push({name: k.substr(5).toLowerCase(), value: v});
-						}
-					});
-					data = $.extend(arr,sd);
-				}else{
-					var tmp = [];
-					$.each( tr.data(), function(k,v) {
-						tmp.push({name: k, value:v});
-						if(k.indexOf('field')>-1){
-							tmp.push({name: k.substr(5).toLowerCase(), value: v});
-						}
-					});
-					data = $.param(tmp);
+				var sd = tr.serializeArray(), data, atts = tr.data(), param = [];
+				// insert user set params
+				if(defaults.data){
+					atts = $.extend(defaults.data, atts);
 				}
-
+				$.each( atts, function(k,v) {
+					param.push({name: k, value:v});
+					if(k.indexOf('field')>-1){
+						param.push({name: k.substr(5).toLowerCase(), value: v});
+					}
+				});
+				if(sd.length){
+					$.each( sd, function(k,v) {
+						param.push(v);
+					});
+					//data = $.extend(param,sd);
+				}
+				//console.log(param);
+				data = $.param(param);
+				
 				var request = {
 						url		: params.url,
 						data	: data,
