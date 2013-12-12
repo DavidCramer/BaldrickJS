@@ -56,7 +56,7 @@
 		<h4 class="page-header">Data Binding Test - youtube</h4>
 		<div class="row-fluid">
 			<div class="span4">
-				<form class="form-inline baldrick" data-bind="videos" data-target="#videolist" name="q" data-request="http://gdata.youtube.com/feeds/api/videos?v=2&alt=json&max-results=5"  data-template="#videolist-template">
+				<form class="form-inline baldrick" data-bind="videos" data-animate="true" data-target="#videolist" name="q" data-request="http://gdata.youtube.com/feeds/api/videos?v=2&alt=json&max-results=5"  data-template="#videolist-template">
 					<input type="text" name="q"> <button class="btn">Search</button>
 				</form>
 				<hr>
@@ -125,6 +125,7 @@
 		<script src="libs/handlebars.js"></script>
 		<script src="plugins/handlebars.baldrick.js"></script>
 		<script src="plugins/modal.baldrick.js"></script>
+		<script src="plugins/animate.baldrick.js"></script>
 
 
 	</body>
