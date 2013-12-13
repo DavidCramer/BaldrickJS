@@ -28,9 +28,10 @@ data-target="#users-target"
 data-template="#users-modal-tmpl"
 data-modal-animate="true"
 data-modal="users-list"
+data-modal-title="Users"
 data-cache="true"</pre>
 						<div class="list-group">
-							<a href="users.json" data-modal="users-list" data-cache="true" data-target="#users-target" data-modal-animate="true" data-template="#users-modal-tmpl" class="list-group-item baldrick" data-group="user-list">
+							<a href="users.json" data-modal="users-list" data-modal-title="Users" data-cache="true" data-target="#users-target" data-modal-animate="true" data-template="#users-modal-tmpl" class="list-group-item baldrick" data-group="user-list">
 								Users List - Modal
 							</a>
 						</div>
@@ -48,12 +49,7 @@ data-cache="true"</pre>
 			</div>
 			<div class="col-lg-4" id="users-target">
 			</div>
-			<div class="col-lg-4">
-				<div class="panel panel-default">
-					<div class="panel-body panel-inverse" id="single-user-target">
-						Select a User
-					</div>
-				</div>
+			<div class="col-lg-4" id="single-user-target">
 			</div>
 		</div>
 	</div>
@@ -97,10 +93,9 @@ data-cache="true"</pre>
 	</div>
 	</script>
 	<script id="users-modal-tmpl" type="text/html">
-	<h3>Users</h3>
 <pre>tr data-request="users.json \{{@index}}"
 data-target="#single-user-target"
-data-template="#single-user-tmpl"
+data-template="#single-user-modal-tmpl"
 data-group="user-list"
 data-animate="down"
 data-cache="true"
@@ -116,7 +111,7 @@ data-modal-title="\{{firstname}} \{{lastname}}"</pre>
 		</thead>
 		<tbody>
 		{{#each this}}
-			<tr class="baldrick" data-cache="true" data-modal="user" data-modal-title="{{firstname}} {{lastname}}" data-request="users.json {{@index}}" data-animate="down" data-target="#single-user-target" data-template="#single-user-tmpl" data-group="single-user">
+			<tr class="baldrick" data-cache="true" data-modal="user" data-modal-title="{{firstname}} {{lastname}}" data-request="users.json {{@index}}" data-animate="down" data-target="#single-user-target" data-template="#single-user-modal-tmpl" data-group="single-user">
 				<td>{{firstname}}</td>
 				<td>{{lastname}}</td>
 				<td>{{country}}</td>
@@ -126,8 +121,26 @@ data-modal-title="\{{firstname}} \{{lastname}}"</pre>
 	</table>
 	</script>
 	<script id="single-user-tmpl" type="text/html">
-	<h3>{{firstname}} {{lastname}}</h3>
-	<dl>
+	<div class="panel panel-default">
+		<div class="panel-body panel-inverse">
+		<h3>{{firstname}} {{lastname}}</h3>
+		<dl>
+			<dt>Username</dt>
+			<dd>{{username}}</dd>
+			<dt>Firstname</dt>
+			<dd>{{firstname}}</dd>
+			<dt>Lastname</dt>
+			<dd>{{lastname}}</dd>
+			<dt>Country</dt>
+			<dd>{{country}}</dd>
+			<dt>Date</dt>
+			<dd>{{date}}</dd>
+		</dl>
+		</div>
+	</div>
+	</script>
+	<script id="single-user-modal-tmpl" type="text/html">
+	<dl class="dl-horizontal">
 		<dt>Username</dt>
 		<dd>{{username}}</dd>
 		<dt>Firstname</dt>
