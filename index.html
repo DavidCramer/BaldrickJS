@@ -17,21 +17,20 @@
 						<h3>Actions</h3>
 						<pre>a href="users.json"
 data-target="#users-target"
-data-template="#users-tmpl"</pre>
+data-template="<a href="#" class="baldrick" data-modal="template" data-modal-title="Template Element" data-modal-content="#users-tmpl-template">#users-tmpl</a>"</pre>
 						<div class="list-group">
 							<a href="users.json" data-target="#users-target" data-template="#users-tmpl" class="list-group-item baldrick" data-group="user-list">
 								Users List
 							</a>
 						</div>
 						<pre>a href="users.json"
-data-target="#users-target"
-data-template="#users-modal-tmpl"
+data-template="<a href="#" class="baldrick" data-modal="template" data-modal-title="Template Element" data-modal-content="#users-modal-tmpl-template">#users-modal-tmpl</a>"
 data-modal-animate="true"
 data-modal="users-list"
 data-modal-title="Users"
 data-cache="true"</pre>
 						<div class="list-group">
-							<a href="users.json" data-modal="users-list" data-modal-title="Users" data-cache="true" data-target="#users-target" data-modal-animate="true" data-template="#users-modal-tmpl" class="list-group-item baldrick" data-group="user-list">
+							<a href="users.json" data-modal="users-list" data-modal-title="Users" data-cache="true" data-modal-animate="true" data-template="#users-modal-tmpl" class="list-group-item baldrick" data-group="user-list">
 								Users List - Modal
 							</a>
 						</div>
@@ -53,6 +52,60 @@ data-cache="true"</pre>
 			</div>
 		</div>
 	</div>
+	<script id="users-modal-tmpl-template" type="text/html">
+	<pre>
+&lt;script id=&quot;users-modal-tmpl&quot; type=&quot;text/html&quot;&gt;
+	&lt;table class=&quot;table&quot;&gt;
+		&lt;thead&gt;
+			&lt;tr&gt;
+				&lt;th&gt;Name&lt;/th&gt;
+				&lt;th&gt;Surname&lt;/th&gt;
+				&lt;th&gt;Location&lt;/th&gt;
+			&lt;/tr&gt;
+		&lt;/thead&gt;
+		&lt;tbody&gt;
+		{{#each this}}
+			&lt;tr class=&quot;baldrick&quot; data-cache=&quot;true&quot; data-modal=&quot;user&quot; data-modal-title=&quot;{{firstname}} {{lastname}}&quot; data-request=&quot;users.json {{@index}}&quot; data-animate=&quot;down&quot; data-target=&quot;#single-user-target&quot; data-template=&quot;#single-user-modal-tmpl&quot; data-group=&quot;single-user&quot;&gt;
+				&lt;td&gt;{{firstname}}&lt;/td&gt;
+				&lt;td&gt;{{lastname}}&lt;/td&gt;
+				&lt;td&gt;{{country}}&lt;/td&gt;
+			&lt;/tr&gt;
+		{{/each}}
+		&lt;/tbody&gt;
+	&lt;/table&gt;
+&lt;/script&gt;
+	</pre>
+	</script>
+	<script id="users-tmpl-template" type="text/html">
+	<pre>
+&lt;script id=&quot;users-tmpl&quot; type=&quot;text/html&quot;&gt;
+	&lt;div class=&quot;panel panel-default&quot;&gt;
+		&lt;div class=&quot;panel-body&quot;&gt;	
+	&lt;h3&gt;Users&lt;/h3&gt;
+	&lt;table class=&quot;table&quot;&gt;
+		&lt;thead&gt;
+			&lt;tr&gt;
+				&lt;th&gt;Name&lt;/th&gt;
+				&lt;th&gt;Surname&lt;/th&gt;
+				&lt;th&gt;Location&lt;/th&gt;
+			&lt;/tr&gt;
+		&lt;/thead&gt;
+		&lt;tbody&gt;
+		{{#each this}}
+			&lt;tr class=&quot;baldrick&quot; data-cache=&quot;true&quot; data-request=&quot;users.json {{@index}}&quot; data-animate=&quot;down&quot; data-target=&quot;#single-user-target&quot; data-template=&quot;#single-user-tmpl&quot; data-group=&quot;single-user&quot;&gt;
+				&lt;td&gt;{{firstname}}&lt;/td&gt;
+				&lt;td&gt;{{lastname}}&lt;/td&gt;
+				&lt;td&gt;{{country}}&lt;/td&gt;
+			&lt;/tr&gt;
+		{{/each}}
+		&lt;/tbody&gt;
+	&lt;/table&gt;
+	&lt;/div&gt;
+	&lt;/div&gt;
+&lt;/script&gt;
+</pre>
+	</script>
+
 	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
 	<script src="js/libs/handlebars.js"></script>
 	<script src="js/libs/bootstrap.min.js"></script>	
