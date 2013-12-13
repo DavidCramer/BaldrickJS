@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>BaldrickJS</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="css/bootstrap.css" media="screen">
+	<style>
+	body {
+		margin-top: 70px;
+	}
+
+	.demo-wrap .modal {
+		bottom: auto;
+		display: block;
+		left: auto;
+		position: relative;
+		right: auto;
+		top: auto;
+		z-index: 1;
+	}
+	</style>
+</head>
+<body>
+
+	<div class="navbar navbar-default navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<a href="../" class="navbar-brand">BaldrickJS</a>
+				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="navbar-collapse collapse" id="navbar-main">
+				<ul class="nav navbar-nav pull-right">
+					<li>
+						<a href="../help/">Help</a>
+					</li>
+					<li>
+						<a href="http://news.bootswatch.com">Blog</a>
+					</li>
+				</ul>
+
+			</div>
+		</div>
+	</div>
+
+
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="bs-example">
+					<div class="jumbotron">
+						<div class="row">
+							<div class="col-lg-6">
+								<h1>BaldrickJS</h1>
+								<p>The Easiest Way To Add Ajax to Your Project.</p>
+							</div>
+							<div class="col-lg-6">
+								<p class="lead">Writing request and target rules: simple.</p>
+								<dl class="dl-horizontal">
+								<dt>No Javascript</dt>
+								<dd>Define all rules via HTML attributes</dd>
+								<dt>Extendable</dt>
+								<dd>Simple API to build helper plugins</dd>
+								<dt>Easy</dt>
+								<dd>Simple concepts, focus on design</dd>
+								</dl>	
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-4">        
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<h3>No Coding</h3>
+						<p>BaldrickJS reduces and can even elimiate writing javascript for ajax calls. Define ajax requests and desination via html data-* atributes.</p>
+						<p>Using a simple Request and Target concept, you simply set <code>data-request="url"</code> and <code>data-target="#target"</code> attributes in a trigger (an element to start the request).</p>
+						<p>This tells Baldrick to go fetch the url and place the result in the target.</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4">        
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<h3>Trigger</h3>
+						<p>A trigger is an element that holds a request - target rule.</p>
+						<div class="list-group">
+							<a href="users.json" data-target="#example-target" data-template="#users-tmpl" data-animate="true" class="list-group-item baldrick">
+								Example Trigger - Users List
+							</a>
+							<a href="demo.html" class="list-group-item baldrick" data-animate="true" data-target="#example-target">
+								Example Trigger - User Detail
+							</a>
+						</div>						
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4">        
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<h3>Target</h3>
+						<p id="example-target"></p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="js/libs/handlebars.js"></script>
+	<script src="js/jquery.baldrick.js"></script>
+	<script src="js/plugins/animate.baldrick.js"></script>
+	<script src="js/plugins/handlebars.baldrick.js"></script>
+	
+	<script id="users-tmpl" type="text/html">
+	<table class="table">
+	<thead>
+	<tr>
+	<th>ID</th>
+	<th>Name</th>
+	<th>Age</th>
+	</tr>
+	</thead>
+	<tbody>
+	{{#each users}}
+	<tr>
+	<td>{{userid}}</td>
+	<td>{{name}}</td>
+	<td>{{age}}</td>
+	</tr>
+	{{/each}}
+	</tbody>
+	</table>
+	</script>	
+</body>
+</html>

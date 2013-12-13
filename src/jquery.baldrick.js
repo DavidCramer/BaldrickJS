@@ -1,58 +1,60 @@
-/* BaldrickJS  V2.01 | (C) David Cramer - 2013 | MIT License */
+/* BaldrickJS  V2.1 | (C) David Cramer - 2013 | MIT License */
 (function($){
 
-	var baldrickhelpers = {
+	var baldrickCache = {},
+		baldrickhelpers = {
+		_plugins		: {},
 		bind			: {},
-		event			: {
-			_event		: function(el,e){
-				return el;
-			}
+		event			: function(el,e){
+			return el;
 		},
-		filter			: {
-			_totarget	: function(opts){
-				if(opts.params.target){
-					opts.params.target[opts.params.targetInsert](opts.data);
-
-					if(typeof opts.params.callback === 'string'){
-						if(typeof window[opts.params.callback] === 'function'){
-							return window[opts.params.callback](opts);
-						}
-					}else if(typeof opts.params.callback === 'function'){
-						return opts.params.callback(opts);
+		filter			: function(opts){
+			return opts;
+		},
+		target			: function(opts){
+			if(opts.params.target){
+				opts.params.target[opts.params.targetInsert](opts.data);
+				if(typeof opts.params.callback === 'string'){
+					if(typeof window[opts.params.callback] === 'function'){
+						return window[opts.params.callback](opts);
 					}
+				}else if(typeof opts.params.callback === 'function'){
+					return opts.params.callback(opts);
 				}
 			}
 		},
-		request			: {
-			_dorequest	: function(opts){
-				return $.ajax(opts.request);
+		request			: function(opts){
+			if(opts.request.url.indexOf('#_cache_') > -1){
+				if(typeof baldrickCache[opts.request.url.split('#_cache_')[1]] === 'object'){
+					return {data: baldrickCache[opts.request.url.split('#_cache_')[1]]};
+				}
 			}
+			return $.ajax(opts.request);
 		},
-		request_complete: {
-			_docomplete	: function(opts){
-				opts.params.complete(opts.jqxhr,opts.textStatus);
-				opts.params.loadElement.removeClass(opts.params.loadClass);
-			}
+		request_complete: function(opts){
+			opts.params.complete(opts);
+			opts.params.loadElement.removeClass(opts.params.loadClass);
 		},
-		request_error	: {
-			_doerror	: function(opts){
-				opts.params.complete(opts.jqxhr,opts.textStatus);
-			}
+		request_error	: function(opts){
+			opts.params.complete(opts.jqxhr,opts.textStatus);
 		},
-		refresh	: {
-			_dorefresh	: function(opts, defaults){
-				$(defaults.triggerClass).baldrick(defaults);
-			}
+		refresh	: function(opts, defaults){
+			$(defaults.triggerClass).baldrick(defaults);
 		}
 	};
 
-	$.fn.baldrick = function(){
+	$.fn.baldrick = function(opts){
 
 		var triggerClass	= this.selector,
 			inst			= this.not('._tisBound');
 
 		inst.addClass('_tisBound');
-		var defaults		= $.extend(true, arguments[0], { helpers : baldrickhelpers}, {triggerClass:triggerClass}),
+		if(typeof opts !== 'undefined'){
+			if(typeof opts.helper === 'object'){
+				baldrickhelpers._plugins._params_helpers_ = opts.helper;
+			}
+		}
+		var defaults		= $.extend(true, opts, { helpers : baldrickhelpers}, {triggerClass:triggerClass}),
 			ncb				= function(){return true;},
 			callbacks		= {
 				"before"	: ncb,
@@ -61,6 +63,7 @@
 				"error"		: ncb
 			},
 			output;
+
 		for(var c in callbacks){
 			if(typeof defaults[c] === 'string'){
 				callbacks[c] = (typeof window[defaults[c]] === 'function' ? window[defaults[c]] : ncb);
@@ -68,20 +71,28 @@
 				callbacks[c] = defaults[c];
 			}
 		}
-		var do_helper = function(h,input, ev){
+		var do_helper = function(h, input, ev){
 			var out;
-			if(typeof defaults.helpers[h] === 'object'){
-				for(var helper in defaults.helpers[h]){
-					if(typeof defaults.helpers[h][helper] === 'function'){
-						out = defaults.helpers[h][helper](input, defaults, ev);
-						if(typeof out !== 'undefined'){ input = out;}
-						if(input === false){return false;}
-					}
+			// pull in plugins before
+			for(var before in defaults.helpers._plugins){
+				if(typeof defaults.helpers._plugins[before][h] === 'function'){
+					out = defaults.helpers._plugins[before][h](input, defaults, ev);
+					if(typeof out !== 'undefined'){ input = out;}
+					if(input === false){return false;}
 				}
-			}else if(typeof defaults.helpers[h] === 'function'){
+			}
+			if(typeof defaults.helpers[h] === 'function'){
 				out = defaults.helpers[h](input, defaults, ev);
 				if(typeof out !== 'undefined'){ input = out;}
 				if(!input){return false;}
+			}
+			// pull in plugins after
+			for(var after in defaults.helpers._plugins){
+				if(typeof defaults.helpers._plugins[after]['after_' + h] === 'function'){
+					out = defaults.helpers._plugins[after]['after_' + h](input, defaults, ev);
+					if(typeof out !== 'undefined'){ input = out;}
+					if(input === false){return false;}
+				}
 			}
 			return input;
 		};
@@ -99,8 +110,8 @@
 
 				if(tr.data('for')){
 					var fort		= $(tr.data('for')),
-						datamerge	= $.extend({}, tr.data());
-						delete datamerge.for;
+						datamerge	= $.extend({}, fort.data(), tr.data());
+						delete datamerge['for'];
 					fort.data(datamerge);
 					return fort.trigger((fort.data('event') ? fort.data('event') : ev));
 				}
@@ -108,7 +119,11 @@
 					tr.data('request', tr.attr('action'));
 				}
 				if(tr.is('a') && !tr.data('request') && tr.attr('href')){
-					tr.data('request', tr.attr('href'));
+					if(tr.attr('href').indexOf('#') < 0){
+						tr.data('request', tr.attr('href'));
+					}else{
+						tr.data('href', tr.attr('href'));
+					}
 				}
 
 				if((tr.data('before') ? (typeof window[tr.data('before')] === 'function' ? window[tr.data('before')](this, e) : callbacks.before(this, e)) : callbacks.before(this, e)) === false){return;}
@@ -144,7 +159,6 @@
 							params.resultSelector	= rp[1];
 						}
 				}
-
 				e.preventDefault();
 				var active = (tr.data('group') ? $('._tisBound[data-group="'+tr.data('group')+'"]').each(function(){
 					var or  = $(this),
@@ -159,39 +173,37 @@
 				params.activeElement.addClass(params.activeClass);
 				params.loadElement.addClass(params.loadClass);
 
-				var sd = tr.serializeArray(), data;
+				var sd = tr.serializeArray(), data, atts = tr.data(), param = [];
+				// insert user set params
+				if(defaults.data){
+					atts = $.extend(defaults.data, atts);
+				}
+				$.each( atts, function(k,v) {
+					param.push({name: k, value:v});
+					if(k.indexOf('field')>-1){
+						param.push({name: k.substr(5).toLowerCase(), value: v});
+					}
+				});
 				if(sd.length){
-					var arr = [];
-					$.each( tr.data(), function(k,v) {
-						arr.push({name:k, value:v});
-						if(k.indexOf('field')>-1){
-							tmp.push({name: k.substr(5).toLowerCase(), value: v});
-						}
+					$.each( sd, function(k,v) {
+						param.push(v);
 					});
-					data = $.extend(arr,sd);
-				}else{
-					var tmp = [];
-					$.each( tr.data(), function(k,v) {
-						tmp.push({name: k, value:v});
-						if(k.indexOf('field')>-1){
-							tmp.push({name: k.substr(5).toLowerCase(), value: v});
-						}
-					});
-					data = $.param(tmp);
+					//data = $.extend(param,sd);
 				}
 
+				data = $.param(param);
+				
 				var request = {
 						url		: params.url,
 						data	: data,
 						cache	: params.cache,
 						type	: params.method,
 						success	: function(dt, ts, xhr){
-
 							if(params.resultSelector){
-								if(typeof dt === 'object'){
+								if(typeof dt === 'object'){									
 									var traverse = params.resultSelector.replace(/\[/g,'.').replace(/\]/g,'').split('.'),
 										data_object = dt;
-									for(var i=0; i<traverse.length; i++){
+									for(var i=0; i<traverse.length; i++){										
 										data_object = data_object[traverse[i]];
 									}
 									dt = data_object;
@@ -209,7 +221,8 @@
 								}
 							}
 							var rawdata = dt;
-							do_helper('filter', {data:dt, rawData: rawdata, request: request, params: params});
+							dt = do_helper('filter', {data:dt, rawData: rawdata, request: request, params: params});
+							do_helper('target', dt);
 						},
 						complete: function(xhr,ts){
 							
@@ -231,7 +244,19 @@
 				request = do_helper('request_params', request, params);
 				if(request === false){return inst;}
 
-				return do_helper('request', {request: request, params: params});
+				var request_result = do_helper('request', {request: request, params: params});
+
+				if(request_result.data){
+					alert('hey?');
+					var dt		= request_result.data,
+						rawdata = dt;
+
+					do_helper('filter'			, {data:dt, rawData: rawdata, request: request, params: params});
+					do_helper('request_complete', {jqxhr:false, textStatus:true, request:request, params:params});
+					do_helper('refresh'			, {jqxhr:false, textStatus:true, request:request, params:params});
+
+
+				}
 			});
 			if(el.data('autoload') || el.data('poll')){
 				if(el.data('delay')){
@@ -259,15 +284,18 @@
 			return this;
 		}));
 	};
-
-	$.fn.baldrick.registerhelper = function(helper, slug, callback){
+	$.fn.baldrick.cacheObject = function(id, object){
+		baldrickCache[id] = object;
+	};
+	$.fn.baldrick.registerhelper = function(slug, helper, callback){
+		var newhelper = {};
 		if(typeof helper === 'object'){
-			baldrickhelpers = $.extend(true, helper, baldrickhelpers);
+			newhelper[slug] = helper;
+			baldrickhelpers._plugins = $.extend(true, newhelper, baldrickhelpers._plugins);
 		}else if(typeof helper === 'string' && typeof slug === 'string' && typeof callback === 'function'){
-			var newhelper = {};
 			newhelper[helper] = {};
 			newhelper[helper][slug] = callback;
-			baldrickhelpers = $.extend(true, newhelper, baldrickhelpers);
+			baldrickhelpers._plugins = $.extend(true, newhelper, baldrickhelpers._plugins);
 		}
 		
 	};

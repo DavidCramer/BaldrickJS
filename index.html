@@ -1,107 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<title>BaldrickJS Test Page</title>
+	<title>BaldrickJS</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<!--[if lt IE 9]>
-			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-			<![endif]-->
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="css/bootstrap.css" media="screen">
+</head>
+<body class="container">
 
-			<link href="css/bootstrap.css" rel="stylesheet">
-			<style type="text/css">
-			body{margin: 55px 0 0 0;}
-			.loading > * {opacity: .3}
-			.loading {background: url("css/loader.gif") no-repeat scroll center center / 18px auto transparent;min-height: 25px;}
-			</style>
+		<h1 class="page-header">JSON Data + Template Example</h1>
 
-		</head>
-
-		<body class="preview" id="top" data-spy="scroll" data-target=".subnav" data-offset="80">
-
-
-	<!-- Navbar
-	================================================== -->
-	<div class="navbar navbar-fixed-top">
-		<div class="navbar-inner">
-			<div class="container">
-				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</a>
-				<a class="brand" href="../">BaldrickJS Tests</a>
+		<div class="row">
+			<div class="col-lg-4">        
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<h3>Actions</h3>
+						<pre>a href="users.json"
+data-target="#users-target"
+data-template="#users-tmpl"
+class="baldrick"</pre>
+						<div class="list-group">
+							<a href="users.json" data-target="#users-target" data-template="#users-tmpl" class="list-group-item baldrick" data-group="user-list">
+								Users List
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4">        
+				<div class="panel panel-default">
+					<div class="panel-body" id="users-target">
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<div class="panel panel-default">
+					<div class="panel-body" id="single-user-target">
+					</div>
+				</div>
 			</div>
 		</div>
+
 	</div>
-
-	<div class="container">
-
-
-	<section id="modals">
-		<h4 class="page-header">Modal Tests</h4>
-		<a class="btn baldrick" data-modal="true" data-modal-animate="true" data-request="demo.html">Plain Modal</a>
-		<a class="btn baldrick" data-modal="true" data-template="#template-demo-1" data-request="demo.json">Modal</a>
-		<a class="btn baldrick" data-modal="true" data-template="#template-demo-2" data-request="demo.json" data-modal-title="Modal With Title">Baldrick Modal + Title</a>
-		<a class="btn baldrick" data-modal="true" data-template="#template-demo-3" data-request="demo.json" data-modal-title="An animated Modal" data-modal-animate="true">Baldrick Modal + Animate</a>
-		<a class="btn baldrick" data-modal="true" data-template="#template-demo-1" data-request="demo.json" data-modal-buttons="Close|dismiss">Modal</a>
-		<a class="btn baldrick" data-modal="true" data-template="#template-demo-1" data-modal-content="#template-demo-4">Modal Content</a>
-		<hr>
-
-	</section>
-
+	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="js/libs/handlebars.js"></script>
+	<script src="src/jquery.baldrick.js"></script>
+	<script src="js/plugins/animate.baldrick.js"></script>
+	<script src="js/plugins/handlebars.baldrick.js"></script>
 	
-	
-	<section id="databind">
-		<h4 class="page-header">Data Binding Test</h4>
-		<div class="row-fluid">
-			<div class="span4">
-				<form class="form-inline baldrick" data-bind="videos" data-target="#userlist" name="q" data-request="http://gdata.youtube.com/feeds/api/videos?v=2&alt=json"  data-template="#userlist-template">
-					<input type="text" name="q"> <button class="btn">Search</button>
-				</form>
-				<hr>
-				<ul id="userlist" class="nav nav-tabs nav-stacked"></ul>
-			</div>
-			<div class="span8" id="user-profile">
-			</div>
-		</div>
-
-	</section>
-
-	<script type="text/html" id="userlist-template">
-	{{#each feed.entry}}
-	<li>
-		<a href="#" class="baldrick" data-active-element="_parent" data-bind="videos.feed.entry[{{@index}}]" data-target="#user-profile" data-template="#profile-template">{{title.$t}}</a>
-	</li>
-	{{/each}}
+	<script id="users-tmpl" type="text/html">
+	<h3>Users</h3>
+<pre>tr data-request="users.json \{{@index}}"
+data-target="#single-user-target"
+data-template="#single-user-tmpl"
+data-group="user-list"
+class="baldrick"</pre>	
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Surname</th>
+				<th>Location</th>
+			</tr>
+		</thead>
+		<tbody>
+		{{#each this}}
+			<tr class="baldrick" data-request="users.json {{@index}}" data-target="#single-user-target" data-template="#single-user-tmpl" data-group="single-user">
+				<td>{{firstname}}</td>
+				<td>{{lastname}}</td>
+				<td>{{country}}</td>
+			</tr>
+		{{/each}}
+		</tbody>
+	</table>
 	</script>
-	<script type="text/html" id="profile-template">
-	<h3 class="page-header">{{title.$t}}</h3>
-	<iframe width="560" height="315" src="{{content.src}}" frameborder="0" allowfullscreen></iframe>
+	<script id="single-user-tmpl" type="text/html">
+	<h3>{{firstname}} {{lastname}}</h3>
+	<dl>
+		<dt>Username</dt>
+		<dd>{{username}}</dd>
+		<dt>Firstname</dt>
+		<dd>{{firstname}}</dd>
+		<dt>Lastname</dt>
+		<dd>{{lastname}}</dd>
+		<dt>Country</dt>
+		<dd>{{country}}</dd>
+		<dt>Date</dt>
+		<dd>{{date}}</dd>
+	</dl>
 	</script>
-
-
-
-		<script type="text/html" id="template-demo-1">
-		<h3 class="page-header" style="margin-top:-9px;">{{title}}</h3>
-		<p>{{demo1}}</p>
-		</script>
-		<script type="text/html" id="template-demo-2"><p>{{demo2}}</p></script>
-		<script type="text/html" id="template-demo-3"><p>{{demo3}}</p></script>
-		<script type="text/html" id="template-demo-4"><h3>Static Content</h3>
-		<p>This is provided by suppying data-modal-content="element_selector".</p>
-		It will also be parsed for ne triggers brought in. <button class="btn btn-primary baldrick" data-request="README.md" data-target="#baldrickModalBody">More</button> OR <a class="btn baldrick" data-modal="true" data-template="#template-demo-3" data-request="demo.json" data-modal-title="An animated Modal" data-modal-animate="true">Baldrick Modal + Animate</a></p>
-		</script>
-		<!-- Le javascript
-		================================================== -->
-		<!-- Placed at the end of the document so the pages load faster -->
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script src="libs/boostrap-modal.js"></script>
-		<script src="src/jquery.baldrick.js"></script>
-		<script src="libs/handlebars.js"></script>
-		<script src="plugins/handlebars.baldrick.js"></script>
-		<script src="plugins/modal.baldrick.js"></script>
-
-
-	</body>
-	</html>
+</body>
+</html>
