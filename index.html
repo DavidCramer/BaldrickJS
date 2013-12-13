@@ -18,9 +18,10 @@
 						<pre>a href="users.json"
 data-target="#users-target"
 data-template="#users-tmpl"
+data-animate="down"
 class="baldrick"</pre>
 						<div class="list-group">
-							<a href="users.json" data-target="#users-target" data-template="#users-tmpl" class="list-group-item baldrick" data-group="user-list">
+							<a href="users.json" data-target="#users-target" data-animate="down" data-template="#users-tmpl" class="list-group-item baldrick" data-group="user-list">
 								Users List
 							</a>
 						</div>
@@ -49,7 +50,6 @@ class="baldrick"</pre>
 				</div>
 			</div>
 		</div>
-
 	</div>
 	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
 	<script src="js/libs/handlebars.js"></script>
@@ -63,6 +63,7 @@ class="baldrick"</pre>
 data-target="#single-user-target"
 data-template="#single-user-tmpl"
 data-group="user-list"
+data-animate="up"
 class="baldrick"</pre>	
 	<table class="table">
 		<thead>
@@ -74,7 +75,7 @@ class="baldrick"</pre>
 		</thead>
 		<tbody>
 		{{#each this}}
-			<tr class="baldrick" data-request="users.json {{@index}}" data-target="#single-user-target" data-template="#single-user-tmpl" data-group="single-user">
+			<tr class="baldrick" data-request="users.json {{@index}}" data-animate="up" data-target="#single-user-target" data-template="#single-user-tmpl" data-group="single-user">
 				<td>{{firstname}}</td>
 				<td>{{lastname}}</td>
 				<td>{{country}}</td>
