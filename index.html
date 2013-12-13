@@ -17,11 +17,9 @@
 						<h3>Actions</h3>
 						<pre>a href="users.json"
 data-target="#users-target"
-data-template="#users-tmpl"
-data-animate="down"
-class="baldrick"</pre>
+data-template="#users-tmpl"</pre>
 						<div class="list-group">
-							<a href="users.json" data-target="#users-target" data-animate="down" data-template="#users-tmpl" class="list-group-item baldrick" data-group="user-list">
+							<a href="users.json" data-target="#users-target" data-template="#users-tmpl" class="list-group-item baldrick" data-group="user-list">
 								Users List
 							</a>
 						</div>
@@ -30,9 +28,9 @@ data-target="#users-target"
 data-template="#users-modal-tmpl"
 data-modal-animate="true"
 data-modal="users-list"
-class="baldrick"</pre>
+data-cache="true"</pre>
 						<div class="list-group">
-							<a href="users.json" data-modal="users-list" data-target="#users-target" data-modal-animate="true" data-template="#users-modal-tmpl" class="list-group-item baldrick" data-group="user-list">
+							<a href="users.json" data-modal="users-list" data-cache="true" data-target="#users-target" data-modal-animate="true" data-template="#users-modal-tmpl" class="list-group-item baldrick" data-group="user-list">
 								Users List - Modal
 							</a>
 						</div>
@@ -48,15 +46,12 @@ class="baldrick"</pre>
 					</div>
 				</div>
 			</div>
-			<div class="col-lg-4">        
-				<div class="panel panel-default">
-					<div class="panel-body" id="users-target">
-					</div>
-				</div>
+			<div class="col-lg-4" id="users-target">
 			</div>
 			<div class="col-lg-4">
 				<div class="panel panel-default">
-					<div class="panel-body" id="single-user-target">
+					<div class="panel-body panel-inverse" id="single-user-target">
+						Select a User
 					</div>
 				</div>
 			</div>
@@ -71,13 +66,15 @@ class="baldrick"</pre>
 	<script src="js/plugins/modal.baldrick.js"></script>
 	
 	<script id="users-tmpl" type="text/html">
+	<div class="panel panel-default">
+		<div class="panel-body">	
 	<h3>Users</h3>
 <pre>tr data-request="users.json \{{@index}}"
 data-target="#single-user-target"
 data-template="#single-user-tmpl"
 data-group="user-list"
 data-animate="up"
-class="baldrick"</pre>	
+data-cache="true"</pre>	
 	<table class="table">
 		<thead>
 			<tr>
@@ -88,7 +85,7 @@ class="baldrick"</pre>
 		</thead>
 		<tbody>
 		{{#each this}}
-			<tr class="baldrick" data-request="users.json {{@index}}" data-animate="down" data-target="#single-user-target" data-template="#single-user-tmpl" data-group="single-user">
+			<tr class="baldrick" data-cache="true" data-request="users.json {{@index}}" data-animate="down" data-target="#single-user-target" data-template="#single-user-tmpl" data-group="single-user">
 				<td>{{firstname}}</td>
 				<td>{{lastname}}</td>
 				<td>{{country}}</td>
@@ -96,6 +93,8 @@ class="baldrick"</pre>
 		{{/each}}
 		</tbody>
 	</table>
+	</div>
+	</div>
 	</script>
 	<script id="users-modal-tmpl" type="text/html">
 	<h3>Users</h3>
@@ -104,9 +103,9 @@ data-target="#single-user-target"
 data-template="#single-user-tmpl"
 data-group="user-list"
 data-animate="down"
+data-cache="true"
 data-modal="user"
-data-modal-title="\{{firstname}} \{{lastname}}" 
-class="baldrick"</pre>
+data-modal-title="\{{firstname}} \{{lastname}}"</pre>
 	<table class="table">
 		<thead>
 			<tr>
@@ -117,7 +116,7 @@ class="baldrick"</pre>
 		</thead>
 		<tbody>
 		{{#each this}}
-			<tr class="baldrick" data-modal="user" data-modal-title="{{firstname}} {{lastname}}" data-request="users.json {{@index}}" data-animate="down" data-target="#single-user-target" data-template="#single-user-tmpl" data-group="single-user">
+			<tr class="baldrick" data-cache="true" data-modal="user" data-modal-title="{{firstname}} {{lastname}}" data-request="users.json {{@index}}" data-animate="down" data-target="#single-user-target" data-template="#single-user-tmpl" data-group="single-user">
 				<td>{{firstname}}</td>
 				<td>{{lastname}}</td>
 				<td>{{country}}</td>
