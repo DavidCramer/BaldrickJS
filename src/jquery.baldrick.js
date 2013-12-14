@@ -31,6 +31,32 @@
 			}
 			return $.ajax(opts.request);
 		},
+		xhr				: function(xhr, defaults, params){
+			//Upload progress
+			if( params.trigger.data('progress') ){
+				if( $(params.trigger.data('progress')).length > 0 ){
+					
+					var progress = $(params.trigger.data('progress'));
+
+					xhr.upload.addEventListener("progress", function(evt){
+						if (evt.lengthComputable) {
+							var percentComplete = evt.loaded / evt.total;
+							//Do something with upload progress
+							progress.width(percentComplete*100 + '%');
+						}
+					}, false);
+					//Download progress
+					xhr.addEventListener("progress", function(evt){
+						if (evt.lengthComputable) {
+							var percentComplete = evt.loaded / evt.total;
+							//Do something with download progress
+							progress.width(percentComplete*100 + '%');
+						}
+					}, false);
+				}
+			}
+			return xhr;
+		},
 		request_complete: function(opts){
 			opts.params.complete(opts);
 			opts.params.loadElement.removeClass(opts.params.loadClass);
@@ -200,23 +226,7 @@
 						type	: params.method,
 						xhr: function(){
 							var xhr = new window.XMLHttpRequest();
-							//Upload progress
-							xhr.upload.addEventListener("progress", function(evt){
-								if (evt.lengthComputable) {
-									var percentComplete = evt.loaded / evt.total;
-									//Do something with upload progress
-									console.log(percentComplete);
-								}
-							}, false);
-							//Download progress
-							xhr.addEventListener("progress", function(evt){
-								if (evt.lengthComputable) {
-									var percentComplete = evt.loaded / evt.total;
-									//Do something with download progress
-									console.log(percentComplete + ' -- ');
-								}
-							}, false);
-							return xhr;
+							return do_helper('xhr', xhr, params);
 						},
 						success	: function(dt, ts, xhr){
 							if(params.resultSelector){
@@ -267,7 +277,7 @@
 				var request_result = do_helper('request', {request: request, params: params});
 
 				if(request_result.data){
-					alert('hey?');
+					//alert('hey?');
 					var dt		= request_result.data,
 						rawdata = dt;
 
