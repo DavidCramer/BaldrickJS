@@ -24,6 +24,13 @@ data-template="<a href="#" class="baldrick" data-modal="template" data-modal-tit
 							</a>
 						</div>
 						<div class="progress"><div id="progress" class="progress-bar progress-bar-warning"></div></div>
+						<form class="baldrick" action="upload.php" data-progress="#progress">
+							<div class="form-control">
+								<input class="baldrick" data-event="change" data-progress="#progress" type="file" name="myuploader" multiple="true">
+							</div>
+							<input type="submit" value="Submit" class="btn btn-primary">
+						</form>
+						<input type="checkbox" value="1" class="baldrick" data-request="page.html" name="myCheck" data-event="change">
 						<pre>a href="users.json"
 data-template="<a href="#" class="baldrick" data-modal="template" data-modal-title="Template Element" data-modal-content="#users-modal-tmpl-template">#users-modal-tmpl</a>"
 data-modal-animate="true"

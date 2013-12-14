@@ -35,13 +35,12 @@
 			//Upload progress
 			if( params.trigger.data('progress') ){
 				if( $(params.trigger.data('progress')).length > 0 ){
-					
+					//reset progress
 					var progress = $(params.trigger.data('progress'));
-
+					progress.width(0);
 					xhr.upload.addEventListener("progress", function(evt){
 						if (evt.lengthComputable) {
 							var percentComplete = evt.loaded / evt.total;
-							//Do something with upload progress
 							progress.width(percentComplete*100 + '%');
 						}
 					}, false);
@@ -166,6 +165,8 @@
 					activeElement : (tr.data('activeElement')	? (tr.data('activeElement') === '_parent' ? tr.parent() :$(tr.data('activeElement')))	: (defaults.activeElement ? (defaults.activeElement === '_parent' ? tr.parent() : $(defaults.activeElement)) : tr)),
 					cache : (tr.data('cache')			? tr.data('cache')				: (defaults.cache			? defaults.cache : false)),
 					complete : (tr.data('complete')		? (typeof window[tr.data('complete')] === 'function'		? window[tr.data('complete')] : callbacks.complete ) : callbacks.complete),
+					contentType: (tr.data('contentType')? tr.data('contentType') : 'application/x-www-form-urlencoded; charset=UTF-8'),
+					processData: (tr.data('processData')? tr.data('processData') : true),
 					resultSelector : false
 				};
 				params.url			= (tr.data('request')		? tr.data('request')			: (defaults.request			? defaults.request : params.callback));
@@ -199,31 +200,75 @@
 				params.activeElement.addClass(params.activeClass);
 				params.loadElement.addClass(params.loadClass);
 
-				var sd = tr.serializeArray(), data, atts = tr.data(), param = [];
-				// insert user set params
-				if(defaults.data){
-					atts = $.extend(defaults.data, atts);
-				}
-				$.each( atts, function(k,v) {
-					param.push({name: k, value:v});
-					if(k.indexOf('field')>-1){
-						param.push({name: k.substr(5).toLowerCase(), value: v});
-					}
-				});
-				if(sd.length){
-					$.each( sd, function(k,v) {
-						param.push(v);
-					});
-					//data = $.extend(param,sd);
-				}
 
-				data = $.param(param);
-				
+				var data;
+				if(FormData && ( tr.is('input:file') || tr.is('form') || params.method === 'POST') ){
+					if(tr.is('form')){
+						data = new FormData(tr[0]);
+						if(tr.find('input:file').length){
+							//Options to tell jQuery not to process data or worry about content-type.
+							params.method		=	'POST';
+							params.contentType	=	false;
+						}
+					}else{
+						data = new FormData();
+					}
+					params.processData	=	false;
+					params.cache		=	false;
+
+					// make field vars
+					for(var att in tr.data()){
+						data.append('_'+att, tr.data(att));
+					}
+					// use input
+					if(tr.is('input')){
+						if(tr.is('input:file')){
+							if(tr[0].files.length > 1){
+								for( var file = 0; file < tr[0].files.length; file++){
+									data.append(tr.prop('name'), tr[0].files[file]);
+								}
+							}else{
+								data.append(tr.prop('name'), tr[0].files[0]);
+							}
+							//Options to tell jQuery not to process data or worry about content-type.
+							params.method		=	'POST';
+							params.contentType	=	false;
+							//tr.wrap('<form>').parent('form').trigger('reset');
+							//tr.unwrap();
+
+						}else if(tr.is('input:checkbox') || tr.is('input:radio')){
+							if(tr.prop('checked')){
+								data.append(tr.prop('name'), tr.val());
+							}
+						}else{
+							data.append(tr.prop('name'), tr.val());
+						}
+					}
+				}else{
+					
+					var sd = tr.serializeArray(), atts = tr.data(), param = [];
+					// insert user set params
+					if(defaults.data){
+						atts = $.extend(defaults.data, atts);
+					}
+					$.each( atts, function(k,v) {
+						param.push({name: '_'+k, value: v});
+					});
+					if(sd.length){
+						$.each( sd, function(k,v) {
+							param.push(v);
+						});
+					}
+					data = $.param(param);
+				}
+				//data = do_helper('data', params);
 				var request = {
-						url		: params.url,
-						data	: data,
-						cache	: params.cache,
-						type	: params.method,
+						url			: params.url,
+						data		: data,
+						cache		: params.cache,
+						type		: params.method,
+						contentType	: params.contentType,
+						processData : params.processData,
 						xhr: function(){
 							var xhr = new window.XMLHttpRequest();
 							return do_helper('xhr', xhr, params);
