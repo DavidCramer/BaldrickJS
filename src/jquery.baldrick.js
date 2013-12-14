@@ -198,12 +198,32 @@
 						data	: data,
 						cache	: params.cache,
 						type	: params.method,
+						xhr: function(){
+							var xhr = new window.XMLHttpRequest();
+							//Upload progress
+							xhr.upload.addEventListener("progress", function(evt){
+								if (evt.lengthComputable) {
+									var percentComplete = evt.loaded / evt.total;
+									//Do something with upload progress
+									console.log(percentComplete);
+								}
+							}, false);
+							//Download progress
+							xhr.addEventListener("progress", function(evt){
+								if (evt.lengthComputable) {
+									var percentComplete = evt.loaded / evt.total;
+									//Do something with download progress
+									console.log(percentComplete + ' -- ');
+								}
+							}, false);
+							return xhr;
+						},
 						success	: function(dt, ts, xhr){
 							if(params.resultSelector){
-								if(typeof dt === 'object'){									
+								if(typeof dt === 'object'){
 									var traverse = params.resultSelector.replace(/\[/g,'.').replace(/\]/g,'').split('.'),
 										data_object = dt;
-									for(var i=0; i<traverse.length; i++){										
+									for(var i=0; i<traverse.length; i++){
 										data_object = data_object[traverse[i]];
 									}
 									dt = data_object;
