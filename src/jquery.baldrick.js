@@ -218,7 +218,8 @@
 
 					// make field vars
 					for(var att in tr.data()){
-						data.append('_'+att, tr.data(att));
+						//data.append('_'+att, tr.data(att));
+						data.append(att, tr.data(att));
 					}
 					// use input
 					if(tr.is('input')){
