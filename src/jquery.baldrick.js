@@ -1,4 +1,4 @@
-/* BaldrickJS  V2.1 | (C) David Cramer - 2013 | MIT License */
+/* BaldrickJS  V2.2 | (C) David Cramer - 2013 | MIT License */
 (function($){
 
 	var baldrickCache = {},
