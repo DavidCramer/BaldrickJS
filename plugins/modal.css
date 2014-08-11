@@ -1,0 +1,282 @@
+
+/* MODALS */
+.baldrick-backdrop {
+  background: none repeat scroll 0 0 #000000;
+  bottom: 0;
+  display: block;
+  left: 0;
+  min-height: 360px;
+  opacity: 0.7;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 100100;
+}
+
+.baldrick-modal-wrap {
+  background-color: #FFFFFF;
+  bottom: 15px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  display: block;
+  left: 50%;
+  margin-left: -250px;
+  position: fixed;
+  top: 15px;
+  transition: height 0.2s ease 0s, margin-top 0.2s ease 0s;
+  width: 500px;
+  z-index: 100105;
+}
+.baldrick-modal-wrap.baldrick-front-modal-wrap{
+  position: absolute;
+  bottom: auto;
+  width: 600px;
+  margin-left: -300px;
+  margin-top: 0;
+}
+.baldrick-modal-title {
+  border-bottom: 1px solid #EFEFEF;
+}
+
+.baldrick-modal-closer {
+  color: #808080;
+  float: right;
+  font-size: 24px;
+  padding: 12px;
+  text-decoration: none;
+}
+.baldrick-modal-closer.baldrick-front-modal-closer{
+  position: absolute;
+  right: 0;
+  text-decoration: none;
+  color: inherit;
+}
+.baldrick-modal-closer.baldrick-front-modal-closer:hover,
+.baldrick-modal-closer.baldrick-front-modal-closer:active{
+  text-decoration: none;
+  color: inherit;
+}
+.baldrick-modal-title > h3 {
+  font-weight: 400;
+  margin: 0;
+  padding: 12px 40px 12px 12px;
+}
+
+.baldrick-modal-body {
+  -moz-box-sizing:    border-box;   /* Firefox 1, probably can drop this */
+  -webkit-box-sizing: border-box;   /* Safari 3-4, also probably droppable */
+  box-sizing:        border-box;   /* Everything else */
+  bottom: 53px;
+  left: 0;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+  padding: 12px 12px 8.9px;
+  position: absolute;
+  right: 0;
+  top: 43px;  
+}
+#extend_cf_baldrickModalBody{
+  overflow: auto;
+}
+.baldrick-modal-body.baldrick-front-modal-body {
+  bottom: auto;
+  position: relative;
+  top: auto;
+}
+.baldrick-modal-body .import-warning{
+  margin: 0;
+  padding: 4px 0;
+  color: #ff1111;
+}
+
+.baldrick-modal-body .form-panel {
+  bottom: 0;
+  left: 12px;
+  overflow: auto;
+  position: absolute;
+  right: 12px;
+  top: 0;
+}
+.baldrick-modal-footer {
+  background: none repeat scroll 0 0 #EFEFEF;
+  border-top: 1px solid #E0E0E0;
+  bottom: 0;
+  left: 0;
+  padding: 12px;
+  position: absolute;
+  right: 0;
+  text-align: right;
+}
+.tablenav.baldrick-table-nav {
+  clear: none;
+  float: right;
+  margin: -42px 18px 0 0;
+}
+.baldrick-table-nav .tablenav-pages{
+  float: left;
+}
+.baldrick-table-nav .tablenav-pages .current-page{
+  width: 45px;
+}
+
+
+
+
+
+.profile-features > li,
+.modal-side-tabs > li {
+  display: inline-block;
+  float: left;
+  margin: 0;
+}
+.profile-features > li .profile-feature,
+.modal-side-tabs > li .modal-side-tab {
+  background: none repeat scroll 0 0 #F7F7F7;
+  display: block;
+  margin: 0;
+  padding: 6px 10px;
+  text-decoration: none;
+  color: #8F8F8F;
+}
+.profile-features > li .profile-feature:hover,
+.modal-side-tabs > li .modal-side-tab:hover{
+  background-color: #efefef;
+}
+.baldrick-manage-groups-tip {
+  padding: 10px 0;
+  text-align: center;
+}
+
+
+
+
+
+/** DETAIL PROFILE MODAL */
+.modal-inside {
+  height: 100%;
+  margin-left: 158px;
+  padding-right: 10px;
+  overflow: auto;  
+}
+.modal-body {
+  height: 100%;
+  overflow: auto;  
+}
+.modal-body .modal-list-item {
+  border-bottom: 1px solid #EFEFEF;
+  padding: 5px;
+}
+.modal-list-item:hover {
+  background: none repeat scroll 0 0 #EFEFEF;
+}
+.modal-list-item .description {
+  color: #919191;
+}
+
+.modal-side-bar {
+  background-color: #DFDFDF;
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+  position: absolute;
+  top: 0;
+  width: 150px;
+}
+.modal-side-bar .user-avatar,
+.modal-side-bar .user-avatar img {
+  float: left;
+}
+.modal-side-bar .modal-side-tabs {
+  background-color: #DFDFDF;
+  bottom: 0;
+  margin: 0;
+  overflow: auto;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  min-height: 100px;
+}
+.modal-side-bar.has-avatar .modal-side-tabs{
+  top: 150px;
+}
+.modal-side-tabs > li .modal-side-tab {
+  background-color: #989898;
+  color: #FFFFFF;
+}
+.modal-side-tabs > li .modal-side-tab:hover{
+  background-color: #efefef;
+  color: #585858;
+}
+.modal-side-tabs > li .modal-side-tab.active {
+  background-color: #FFF;
+  color: #585858;
+}
+.modal-side-bar .modal-side-tabs > li {
+  width: 100%;
+}
+.tab-detail-panel {
+  float: right;
+  width: 100%;
+}
+.user-field-lable {
+  display: inline-block;
+  width: 80px;
+  color: #898989;
+}
+input.disabled-input {
+  background-color: #EFEFEF;
+  box-shadow: none;
+}
+.tab-detail-panel > h4 {
+  font-weight: bold;
+  margin: 0.6em 0;
+}
+.tab-detail-panel > h4 small {
+  color: #A9A9A9;
+  font-style: italic;
+  font-weight: normal;
+}
+.tab-detail-panel .button.baldrick-add-group {
+  margin-bottom: 10px !important;
+}
+.tab-detail-panel .baldrick-repeater-group {
+  margin-bottom: 12px;
+}
+.baldrick-repeater-group-control {
+  background: none repeat scroll 0 0 #F7F7F7;
+  border: 1px solid #F4F4F4;
+  clear: both;
+  padding: 6px;
+  text-align: right;
+}
+.baldrick-repeater-group:hover .baldrick-repeater-group-control.row-actions{
+  visibility: visible;
+}
+
+.tab-detail-panel .baldrick-repeater-group hr{ clear: both;}
+.baldrick-modal-body.spinner {
+  background-position: 12px 12px;
+  min-height: 44px;
+  display: block;
+  float: none;
+  text-align: center;
+  width: 100%;
+}
+
+.modal-tab-panel {
+  margin-left: 150px;
+}
+
+@media (max-width: 600px) {
+  /* Small Screens */
+  .baldrick-modal-wrap.baldrick-front-modal-wrap{
+    bottom: 0;
+    display: block;
+    left: 0;
+    margin: 0 !important;
+    overflow: auto;
+    padding: 0 !important;
+    top: 0;
+    width: 100% !important;
+  }
+}
