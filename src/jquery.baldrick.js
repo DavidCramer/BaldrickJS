@@ -1,9 +1,10 @@
-/* BaldrickJS  V2.1 | (C) David Cramer - 2013 | MIT License */
+/* -- BaldrickJS  V2.2 | (C) David Cramer - 2013 | MIT License */
 (function($){
 
 	var baldrickCache = {},
 		baldrickhelpers = {
 		_plugins		: {},
+		load			: {},
 		bind			: {},
 		event			: function(el,e){
 			return el;
@@ -24,43 +25,55 @@
 			}
 		},
 		request			: function(opts){
-			if(opts.request.url.indexOf('#_cache_') > -1){
-				if(typeof baldrickCache[opts.request.url.split('#_cache_')[1]] === 'object'){
-					return {data: baldrickCache[opts.request.url.split('#_cache_')[1]]};
+
+			if( ( opts.params.trigger.data('cacheLocal') || opts.params.trigger.data('cacheSession') ) && !opts.params.trigger.data('cachePurge') ){
+
+				var key;
+
+				if( opts.params.trigger.data('cacheLocal') ){
+					key = opts.params.trigger.data('cacheLocal');
+				}else if(opts.params.trigger.data('cacheSession')){
+					key = opts.params.trigger.data('cacheSession');
 				}
+
+				// check for a recent object
+				if(typeof baldrickCache[key] !== 'undefined'){
+					return {data: baldrickCache[key]};
+				}				
+
+				// check if there is a stored obejct to be loaded
+				if(typeof(Storage)!=="undefined"){
+
+					var cache;
+					
+					// load storage
+					if( opts.params.trigger.data('cacheLocal') ){
+						cache = localStorage.getItem( key );
+					}else if(opts.params.trigger.data('cacheSession')){
+						cache = sessionStorage.getItem( key );
+					}
+					if(cache){
+						try {
+							//baldrickCache[key] = JSON.parse(cache);
+							cache = JSON.parse(cache);
+						} catch (e) {
+							//baldrickCache[key] = cache;
+							cache = cache;
+						}
+						return {data: cache};
+					}
+					
+				}
+
 			}
 			return $.ajax(opts.request);
-		},
-		xhr				: function(xhr, defaults, params){
-			//Upload progress
-			if( params.trigger.data('progress') ){
-				if( $(params.trigger.data('progress')).length > 0 ){
-					//reset progress
-					var progress = $(params.trigger.data('progress'));
-					progress.width(0);
-					xhr.upload.addEventListener("progress", function(evt){
-						if (evt.lengthComputable) {
-							var percentComplete = evt.loaded / evt.total;
-							progress.width(percentComplete*100 + '%');
-						}
-					}, false);
-					//Download progress
-					xhr.addEventListener("progress", function(evt){
-						if (evt.lengthComputable) {
-							var percentComplete = evt.loaded / evt.total;
-							//Do something with download progress
-							progress.width(percentComplete*100 + '%');
-						}
-					}, false);
-				}
-			}
-			return xhr;
 		},
 		request_complete: function(opts){
 			opts.params.complete(opts);
 			opts.params.loadElement.removeClass(opts.params.loadClass);
 		},
 		request_error	: function(opts){
+			opts.params.error(opts);
 			opts.params.complete(opts.jqxhr,opts.textStatus);
 		},
 		refresh	: function(opts, defaults){
@@ -70,32 +83,6 @@
 
 	$.fn.baldrick = function(opts){
 
-		var triggerClass	= this.selector,
-			inst			= this.not('._tisBound');
-
-		inst.addClass('_tisBound');
-		if(typeof opts !== 'undefined'){
-			if(typeof opts.helper === 'object'){
-				baldrickhelpers._plugins._params_helpers_ = opts.helper;
-			}
-		}
-		var defaults		= $.extend(true, opts, { helpers : baldrickhelpers}, {triggerClass:triggerClass}),
-			ncb				= function(){return true;},
-			callbacks		= {
-				"before"	: ncb,
-				"callback"	: false,
-				"complete"	: ncb,
-				"error"		: ncb
-			},
-			output;
-
-		for(var c in callbacks){
-			if(typeof defaults[c] === 'string'){
-				callbacks[c] = (typeof window[defaults[c]] === 'function' ? window[defaults[c]] : ncb);
-			}else if(typeof defaults[c] === 'function'){
-				callbacks[c] = defaults[c];
-			}
-		}
 		var do_helper = function(h, input, ev){
 			var out;
 			// pull in plugins before
@@ -120,7 +107,33 @@
 				}
 			}
 			return input;
-		};
+		},
+		triggerClass	= this.selector,
+		inst			= this.not('._tisBound');
+
+		inst.addClass('_tisBound');
+		if(typeof opts !== 'undefined'){
+			if(typeof opts.helper === 'object'){
+				baldrickhelpers._plugins._params_helpers_ = opts.helper;
+			}
+		}
+		var defaults		= $.extend(true, opts, { helpers : baldrickhelpers}, {triggerClass:triggerClass}),
+			ncb				= function(){return true;},
+			callbacks		= {
+				"before"	: ncb,
+				"callback"	: false,
+				"complete"	: ncb,
+				"error"		: ncb
+			},
+			output;
+
+		for(var c in callbacks){
+			if(typeof defaults[c] === 'string'){
+				callbacks[c] = (typeof window[defaults[c]] === 'function' ? window[defaults[c]] : ncb);
+			}else if(typeof defaults[c] === 'function'){
+				callbacks[c] = defaults[c];
+			}
+		}
 
 		inst = do_helper('bind', inst);
 		if(inst === false){return this;}
@@ -158,23 +171,34 @@
 					callback : (tr.data('callback')		? ((typeof window[tr.data('callback')] === 'function') ? window[tr.data('callback')] : tr.data('callback')) : callbacks.callback),
 					method : (tr.data('method')			? tr.data('method')				: (tr.attr('method')		? tr.attr('method') :(defaults.method ? defaults.method : 'GET'))),
 					dataType : (tr.data('type')			? tr.data('type')				: (defaults.dataType		? defaults.dataType : false)),
-					target : (tr.data('target')			? $(tr.data('target'))			: (defaults.target			? $(defaults.target) : $('<html>'))),
+					timeout : (tr.data('timeout')		? tr.data('timeout')			: 30000),
+					target : (tr.data('target')			? ( tr.data('target') === '_parent' ? tr.parent() : $(tr.data('target')) )			: (defaults.target			? $(defaults.target) : $('<html>'))),
 					targetInsert : (tr.data('targetInsert')	? (tr.data('targetInsert') === 'replace' ? 'replaceWith' : tr.data('targetInsert'))	: (defaults.targetInsert ? (defaults.targetInsert === 'replace' ? 'replaceWith': defaults.targetInsert) : 'html')),
 					loadClass : (tr.data('loadClass')		? tr.data('loadClass')			: (defaults.loadClass		? defaults.loadClass : 'loading')),
 					activeClass : (tr.data('activeClass')	? tr.data('activeClass')		: (defaults.activeClass		? defaults.activeClass : 'active')),
 					activeElement : (tr.data('activeElement')	? (tr.data('activeElement') === '_parent' ? tr.parent() :$(tr.data('activeElement')))	: (defaults.activeElement ? (defaults.activeElement === '_parent' ? tr.parent() : $(defaults.activeElement)) : tr)),
 					cache : (tr.data('cache')			? tr.data('cache')				: (defaults.cache			? defaults.cache : false)),
 					complete : (tr.data('complete')		? (typeof window[tr.data('complete')] === 'function'		? window[tr.data('complete')] : callbacks.complete ) : callbacks.complete),
-					contentType: (tr.data('contentType')? tr.data('contentType') : 'application/x-www-form-urlencoded; charset=UTF-8'),
-					processData: (tr.data('processData')? tr.data('processData') : true),
-					resultSelector : false
+					error : (tr.data('error')		? (typeof window[tr.data('error')] === 'function'		? window[tr.data('error')] : callbacks.error ) : callbacks.error),
+					resultSelector : false,
+					event : ev
 				};
 				params.url			= (tr.data('request')		? tr.data('request')			: (defaults.request			? defaults.request : params.callback));
-				params.loadElement	= (tr.data('loadElement')	? $(tr.data('loadElement'))		: (defaults.loadElement		? ($(defaults.loadElement) ? $(defaults.loadElement) : params.target) : params.target));
+				params.loadElement	= (tr.data('loadElement')	? (tr.data('loadElement') === '_parent' ? tr.parent() :$(tr.data('loadElement')))		: (defaults.loadElement		? ($(defaults.loadElement) ? $(defaults.loadElement) : params.target) : params.target));
 
 				params = do_helper('params', params);
 				if(params === false){return false;}
+				// check if request is a function
+				if(typeof window[params.url] === 'function'){
+					
+					var dt = window[params.url](params, ev);
 
+					dt = do_helper('filter', {data:dt, rawData: dt, params: params});
+					do_helper('target', dt);
+					do_helper('refresh', {params:params});
+
+					return this;
+				}
 				switch (typeof params.url){
 					case 'function' : return params.url(this, e);
 					case 'boolean' :
@@ -200,41 +224,49 @@
 				params.activeElement.addClass(params.activeClass);
 				params.loadElement.addClass(params.loadClass);
 
-
 				var data;
 				if(FormData && ( tr.is('input:file') || tr.is('form') || params.method === 'POST') ){
-					if(tr.is('form')){
-						data = new FormData(tr[0]);
-						if(tr.find('input:file').length){
-							//Options to tell jQuery not to process data or worry about content-type.
-							params.method		=	'POST';
-							params.contentType	=	false;
-						}
-					}else{
-						data = new FormData();
-					}
+
+					params.method		=	'POST';
+					params.contentType	=	false;
 					params.processData	=	false;
 					params.cache		=	false;
+					params.xhrFields	= {
+						onprogress: function (e) {
+							if (e.lengthComputable) {
+								//console.log('Loaded '+ (e.loaded / e.total * 100) + '%');
+							} else {
+								//console.log('Length not computable.');
+							}
+						}
+					};
 
+					if(tr.is('form')){
+						data = new FormData(tr[0]);
+					}else{
+
+						data = new FormData();
+					}
+
+					if(tr.is('input,select,textarea')){
+						// add value as _value for each access
+						tr.data('_value', tr.val());
+					}
 					// make field vars
 					for(var att in tr.data()){
-						data.append('_'+att, tr.data(att));
+						data.append(att, tr.data(att));
 					}
 					// use input
-					if(tr.is('input')){
-						if(tr.is('input:file')){
-							if(tr[0].files.length > 1){
+					if(tr.is('input,select,textarea')){
+
+						if(tr.is('input:file')){														
+							if(tr[0].files.length > 1){								
 								for( var file = 0; file < tr[0].files.length; file++){
 									data.append(tr.prop('name'), tr[0].files[file]);
 								}
 							}else{
 								data.append(tr.prop('name'), tr[0].files[0]);
 							}
-							//Options to tell jQuery not to process data or worry about content-type.
-							params.method		=	'POST';
-							params.contentType	=	false;
-							//tr.wrap('<form>').parent('form').trigger('reset');
-							//tr.unwrap();
 
 						}else if(tr.is('input:checkbox') || tr.is('input:radio')){
 							if(tr.prop('checked')){
@@ -252,7 +284,7 @@
 						atts = $.extend(defaults.data, atts);
 					}
 					$.each( atts, function(k,v) {
-						param.push({name: '_'+k, value: v});
+						param.push({name: k, value: v});
 					});
 					if(sd.length){
 						$.each( sd, function(k,v) {
@@ -261,18 +293,14 @@
 					}
 					data = $.param(param);
 				}
-				//data = do_helper('data', params);
+
+				
 				var request = {
-						url			: params.url,
-						data		: data,
-						cache		: params.cache,
-						type		: params.method,
-						contentType	: params.contentType,
-						processData : params.processData,
-						xhr: function(){
-							var xhr = new window.XMLHttpRequest();
-							return do_helper('xhr', xhr, params);
-						},
+						url		: params.url,
+						data	: data,
+						cache	: params.cache,
+						timeout	: params.timeout,
+						type	: params.method,
 						success	: function(dt, ts, xhr){
 							if(params.resultSelector){
 								if(typeof dt === 'object'){
@@ -295,8 +323,43 @@
 									}
 								}
 							}
-							var rawdata = dt;
-							dt = do_helper('filter', {data:dt, rawData: rawdata, request: request, params: params});
+							var rawdata = dt;							
+							if(params.trigger.data('cacheLocal') || params.trigger.data('cacheSession')){
+
+								
+								var key;
+
+								if( params.trigger.data('cacheLocal') ){
+									key = params.trigger.data('cacheLocal');
+								}else if(params.trigger.data('cacheSession')){
+									key = params.trigger.data('cacheSession');
+								}
+
+								// add to local storage for later
+								if(typeof(Storage)!=="undefined"){
+									if( params.trigger.data('cacheLocal') ){
+										try{
+											localStorage.setItem( key, xhr.responseText );
+										} catch (e) {
+											console.log(e);
+										}
+									}else if( params.trigger.data('cacheSession') ){
+										try{
+											sessionStorage.setItem( key, xhr.responseText );
+										} catch (e) {
+											console.log(e);
+										}
+
+									}
+								}
+
+								// add to current cache object
+								//baldrickCache[key] = dt;
+								$(window).trigger('baldrick.cache', key);
+							}
+
+
+							dt = do_helper('filter', {data:dt, rawData: rawdata, request: request, params: params, xhr: xhr});
 							do_helper('target', dt);
 						},
 						complete: function(xhr,ts){
@@ -316,17 +379,30 @@
 				if(params.dataType){
 					request.dataType = params.dataType;
 				}
+				if(typeof params.contentType !== 'undefined'){
+					request.contentType = params.contentType;
+				}
+				if(typeof params.processData !== 'undefined'){
+					request.processData = params.processData;
+				}
+				if(typeof params.xhrFields !== 'undefined'){
+					request.xhrFields = params.xhrFields;
+				}
+
 				request = do_helper('request_params', request, params);
 				if(request === false){return inst;}
 
 				var request_result = do_helper('request', {request: request, params: params});
 
+				// A Request helper returns a completed object, if it contains data, push to the rest.
 				if(request_result.data){
-					//alert('hey?');
+
 					var dt		= request_result.data,
 						rawdata = dt;
 
-					do_helper('filter'			, {data:dt, rawData: rawdata, request: request, params: params});
+					do_helper('target'			,
+						do_helper('filter'			, {data:dt, rawData: rawdata, request: request, params: params})
+					);
 					do_helper('request_complete', {jqxhr:false, textStatus:true, request:request, params:params});
 					do_helper('refresh'			, {jqxhr:false, textStatus:true, request:request, params:params});
 
@@ -374,7 +450,8 @@
 		}
 		
 	};
-	jQuery(function($){
+	$(function($){
 		$('.baldrick').baldrick();
 	});
+
 })(jQuery);
