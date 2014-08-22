@@ -10,3 +10,4 @@ Example of a complete ajax request.
 <button class="trigger" data-request="/users/list.html" data-target="#users">Get Users</button>
 <div id="users"></div>
 ```
+[Example & Demo](http://desertsnowman.github.io/BaldrickJS/)
