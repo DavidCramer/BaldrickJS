@@ -183,12 +183,14 @@
 					resultSelector : false,
 					event : ev
 				};
-				params.url			= (tr.data('request')		? tr.data('request')			: (defaults.request			? defaults.request : params.callback));
+				params.url			= (tr.data('request')		? ( tr.data('request') )			: (defaults.request			? defaults.request : params.callback));
 				params.loadElement	= (tr.data('loadElement')	? (tr.data('loadElement') === '_parent' ? tr.parent() :$(tr.data('loadElement')))		: (defaults.loadElement		? ($(defaults.loadElement) ? $(defaults.loadElement) : params.target) : params.target));
 
 				params = do_helper('params', params);
 				if(params === false){return false;}
+				
 				// check if request is a function
+				e.preventDefault();
 				if(typeof window[params.url] === 'function'){
 					
 					var dt = window[params.url](params, ev);
@@ -198,6 +200,22 @@
 					do_helper('refresh', {params:params});
 
 					return this;
+				}else{
+					try{
+						if( $(params.url).length ){
+							
+							var dt = $(params.url).html();
+
+							dt = do_helper('filter', {data:dt, rawData: dt, params: params});
+							do_helper('target', dt);
+							do_helper('refresh', {params:params});
+							
+							return this;					
+
+						}
+					} catch (e) {
+						// nope!
+					}
 				}
 				switch (typeof params.url){
 					case 'function' : return params.url(this, e);
@@ -210,7 +228,7 @@
 							params.resultSelector	= rp[1];
 						}
 				}
-				e.preventDefault();
+				
 				var active = (tr.data('group') ? $('._tisBound[data-group="'+tr.data('group')+'"]').each(function(){
 					var or  = $(this),
 						tel = (or.data('activeElement') ? (or.data('activeElement') === '_parent' ? or.parent() :$(or.data('activeElement'))) : (defaults.activeElement ? (defaults.activeElement === '_parent' ? tr.parent() : $(defaults.activeElement)) : or) );
