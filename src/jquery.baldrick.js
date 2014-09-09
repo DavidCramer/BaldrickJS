@@ -1,20 +1,29 @@
 /* -- BaldrickJS  V2.2 | (C) David Cramer - 2013 | MIT License */
 (function($){
 
-	var baldrickCache = {},
-		baldrickhelpers = {
+	var baldrickCache 		= {},
+		baldrickRequests 	= {},
+		baldrickhelpers 	= {
 		_plugins		: {},
 		load			: {},
 		bind			: {},
 		event			: function(el,e){
 			return el;
 		},
+		pre_filter			: function(opts){
+			return opts.data;
+		},
 		filter			: function(opts){
 			return opts;
 		},
 		target			: function(opts){
 			if(opts.params.target){
-				opts.params.target[opts.params.targetInsert](opts.data);
+
+				if(opts.params.target.is('textarea,input') && typeof opts.data === 'object'){
+					opts.params.target.val( JSON.stringify(opts.data) ).trigger('change');
+				}else{
+					opts.params.target[opts.params.targetInsert](opts.data);
+				}
 				if(typeof opts.params.callback === 'string'){
 					if(typeof window[opts.params.callback] === 'function'){
 						return window[opts.params.callback](opts);
@@ -23,6 +32,9 @@
 					return opts.params.callback(opts);
 				}
 			}
+		},
+		request_data : function(obj){
+			return obj.data;
 		},
 		request			: function(opts){
 
@@ -66,11 +78,18 @@
 				}
 
 			}
-			return $.ajax(opts.request);
+			if( baldrickRequests[opts.params.trigger.prop('id')] ){
+				baldrickRequests[opts.params.trigger.prop('id')].abort();
+			}
+			baldrickRequests[opts.params.trigger.prop('id')] = $.ajax(opts.request);
+			return baldrickRequests[opts.params.trigger.prop('id')];
 		},
 		request_complete: function(opts){
 			opts.params.complete(opts);
 			opts.params.loadElement.removeClass(opts.params.loadClass);
+			if( baldrickRequests[opts.params.trigger.prop('id')] ){
+				delete baldrickRequests[opts.params.trigger.prop('id')];
+			}
 		},
 		request_error	: function(opts){
 			opts.params.error(opts);
@@ -107,6 +126,54 @@
 				}
 			}
 			return input;
+		},
+		serialize_form	=	function(form){
+
+			var config			= {},
+				data_fields		= form.find('input,radio,checkbox,select,textarea,file'),
+				objects			= [],
+				arraynames		= {};
+
+			// no fields - exit			
+			if(!data_fields.length){
+				return;
+			}
+
+			for( var v = 0; v < data_fields.length; v++){
+				if( data_fields[v].getAttribute('name') === null){
+					continue;
+				}
+				var field 		= $(data_fields[v]),
+					basename 	= field.prop('name').replace(/\[/gi,':').replace(/\]/gi,''),//.split('[' + id + ']')[1].substr(1),
+					name		= basename.split(':'),
+					value 		= ( field.is(':checkbox,:radio') ? field.filter(':checked').val() : field.val() ),
+					lineconf 	= {};					
+
+				for(var i = name.length-1; i >= 0; i--){
+					var nestname = name[i];
+					if(nestname.length === 0){
+						if( typeof arraynames[name[i-1]] === 'undefined'){
+							arraynames[name[i-1]] = 0;
+						}else{
+							arraynames[name[i-1]] += 1;
+						}
+						nestname = arraynames[name[i-1]];
+					}
+					if(i === name.length-1){
+						lineconf[nestname] = value;
+					}else{
+						var newobj = lineconf;
+						lineconf = {};
+						lineconf[nestname] = newobj;
+					}		
+				}
+				
+				$.extend(true, config, lineconf);
+			};
+			// give json object to trigger
+			//params.data = JSON.stringify(config);
+			//params.data = config;
+			return config;
 		},
 		triggerClass	= this.selector,
 		inst			= this.not('._tisBound');
@@ -151,7 +218,12 @@
 						datamerge	= $.extend({}, fort.data(), tr.data());
 						delete datamerge['for'];
 					fort.data(datamerge);
-					return fort.trigger((fort.data('event') ? fort.data('event') : ev));
+					if( fort.is('form') ){						
+						fort.submit();
+						return this;
+					}else{
+						return fort.trigger((fort.data('event') ? fort.data('event') : ev));
+					}
 				}
 				if(tr.is('form') && !tr.data('request') && tr.attr('action')){
 					tr.data('request', tr.attr('action'));
@@ -172,7 +244,7 @@
 					method : (tr.data('method')			? tr.data('method')				: (tr.attr('method')		? tr.attr('method') :(defaults.method ? defaults.method : 'GET'))),
 					dataType : (tr.data('type')			? tr.data('type')				: (defaults.dataType		? defaults.dataType : false)),
 					timeout : (tr.data('timeout')		? tr.data('timeout')			: 30000),
-					target : (tr.data('target')			? ( tr.data('target') === '_parent' ? tr.parent() : $(tr.data('target')) )			: (defaults.target			? $(defaults.target) : $('<html>'))),
+					target : (tr.data('target')			? ( tr.data('target') === '_parent' ? tr.parent() : ( tr.data('target') === '_self' ? $(tr) : $(tr.data('target')) ) )			: (defaults.target			? $(defaults.target) : $('<html>'))),
 					targetInsert : (tr.data('targetInsert')	? (tr.data('targetInsert') === 'replace' ? 'replaceWith' : tr.data('targetInsert'))	: (defaults.targetInsert ? (defaults.targetInsert === 'replace' ? 'replaceWith': defaults.targetInsert) : 'html')),
 					loadClass : (tr.data('loadClass')		? tr.data('loadClass')			: (defaults.loadClass		? defaults.loadClass : 'loading')),
 					activeClass : (tr.data('activeClass')	? tr.data('activeClass')		: (defaults.activeClass		? defaults.activeClass : 'active')),
@@ -188,34 +260,40 @@
 
 				params = do_helper('params', params);
 				if(params === false){return false;}
-				
+
 				// check if request is a function
 				e.preventDefault();
 				if(typeof window[params.url] === 'function'){
 					
 					var dt = window[params.url](params, ev);
-
+					dt = do_helper('pre_filter', {data:dt, params: params});
 					dt = do_helper('filter', {data:dt, rawData: dt, params: params});
 					do_helper('target', dt);
 					do_helper('refresh', {params:params});
+					do_helper('request_complete', {jqxhr:null, textStatus:'complete', request:request, params:params});
 
 					return this;
 				}else{
 					try{
 						if( $(params.url).length ){
 							
-							var dt = $(params.url).html();
+							var dt = $(params.url).is('input,select,radio,checkbox,file,textarea') ? $(params.url).val() : ( $(params.url).is('form') ? serialize_form( $(params.url) ) : $(params.url).html() );
+							if(params.dataType === 'json'){
+								try{
+									dt = JSON.parse(dt);
+								}catch (e){}
+							}
 
+							dt = do_helper('pre_filter', {data:dt, params: params});
 							dt = do_helper('filter', {data:dt, rawData: dt, params: params});
 							do_helper('target', dt);
 							do_helper('refresh', {params:params});
-							
+							do_helper('request_complete', {jqxhr:null, textStatus:'complete', request:request, params:params});
+
 							return this;					
 
 						}
-					} catch (e) {
-						// nope!
-					}
+					}catch (e){}
 				}
 				switch (typeof params.url){
 					case 'function' : return params.url(this, e);
@@ -243,7 +321,7 @@
 				params.loadElement.addClass(params.loadClass);
 
 				var data;
-				if(FormData && ( tr.is('input:file') || tr.is('form') || params.method === 'POST') ){
+				if(FormData && ( tr.is('input:file') || params.method === 'POST') ){
 
 					params.method		=	'POST';
 					params.contentType	=	false;
@@ -271,8 +349,12 @@
 						tr.data('_value', tr.val());
 					}
 					// make field vars
-					for(var att in tr.data()){
-						data.append(att, tr.data(att));
+					for(var att in params.trigger.data()){
+						data.append(att, params.trigger.data(att));
+					}
+					// convert param.data to json
+					if(params.data){
+						data.append('data', JSON.stringify(params.data));
 					}
 					// use input
 					if(tr.is('input,select,textarea')){
@@ -296,26 +378,30 @@
 					}
 				}else{
 					
-					var sd = tr.serializeArray(), atts = tr.data(), param = [];
+					var sd = tr.serializeArray(), atts = params.trigger.data(), param = [];
+					//console.log(atts);
 					// insert user set params
 					if(defaults.data){
 						atts = $.extend(defaults.data, atts);
 					}
-					$.each( atts, function(k,v) {
-						param.push({name: k, value: v});
-					});
+
 					if(sd.length){
 						$.each( sd, function(k,v) {
 							param.push(v);
 						});
+						params.requestData = serialize_form(tr);
 					}
-					data = $.param(param);
+					// convert param.data to json
+					if(params.data){
+						atts = $.extend(atts, params.data);
+					}					
+					data = atts;
+					params.requestData = $.extend(tr.data(), params.requestData);
 				}
-
 				
 				var request = {
 						url		: params.url,
-						data	: data,
+						data	: do_helper('request_data', {data:data, params: params }),
 						cache	: params.cache,
 						timeout	: params.timeout,
 						type	: params.method,
@@ -376,7 +462,7 @@
 								$(window).trigger('baldrick.cache', key);
 							}
 
-
+							dt = do_helper('pre_filter', {data:dt, request: request, params: params, xhr: xhr});
 							dt = do_helper('filter', {data:dt, rawData: rawdata, request: request, params: params, xhr: xhr});
 							do_helper('target', dt);
 						},
@@ -418,8 +504,10 @@
 					var dt		= request_result.data,
 						rawdata = dt;
 
-					do_helper('target'			,
-						do_helper('filter'			, {data:dt, rawData: rawdata, request: request, params: params})
+					do_helper('target'				,
+							do_helper('filter'		,
+							do_helper('pre_filter'	, {data:dt, request: request, params: params})
+						)
 					);
 					do_helper('request_complete', {jqxhr:false, textStatus:true, request:request, params:params});
 					do_helper('refresh'			, {jqxhr:false, textStatus:true, request:request, params:params});
@@ -468,8 +556,9 @@
 		}
 		
 	};
+
 	$(function($){
 		$('.baldrick').baldrick();
 	});
-
+	
 })(jQuery);
